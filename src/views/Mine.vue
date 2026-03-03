@@ -38,17 +38,35 @@
         </div>
         <div class="order-status-row">
           <button class="status-item" type="button">
-            <span class="status-icon wait">💳</span>
+            <span class="status-icon wait">
+              <svg viewBox="0 0 24 24" class="status-svg" aria-hidden="true">
+                <rect x="3" y="5" width="18" height="14" rx="2" ry="2" fill="none" stroke="currentColor" stroke-width="1.6" />
+                <rect x="4.5" y="9" width="15" height="1.4" fill="currentColor" opacity="0.6" />
+                <rect x="6" y="13" width="4" height="1.6" rx="0.8" fill="currentColor" />
+              </svg>
+            </span>
             <span class="status-text">待付款</span>
             <span class="status-badge" v-if="waitingPay > 0">{{ waitingPay }}</span>
           </button>
           <button class="status-item" type="button">
-            <span class="status-icon doing">🧾</span>
+            <span class="status-icon doing">
+              <svg viewBox="0 0 24 24" class="status-svg" aria-hidden="true">
+                <rect x="5" y="3" width="14" height="18" rx="2" ry="2" fill="none" stroke="currentColor" stroke-width="1.6" />
+                <rect x="8" y="8" width="8" height="1.4" rx="0.7" fill="currentColor" />
+                <rect x="8" y="12" width="6" height="1.4" rx="0.7" fill="currentColor" opacity="0.8" />
+                <circle cx="9" cy="6" r="0.9" fill="currentColor" />
+              </svg>
+            </span>
             <span class="status-text">待结单</span>
             <span class="status-badge" v-if="waitingClose > 0">{{ waitingClose }}</span>
           </button>
           <button class="status-item" type="button">
-            <span class="status-icon done">✅</span>
+            <span class="status-icon done">
+              <svg viewBox="0 0 24 24" class="status-svg" aria-hidden="true">
+                <circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="1.6" />
+                <path d="M8.5 12.5 11 15l4.5-5.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </span>
             <span class="status-text">已完成</span>
             <span class="status-badge" v-if="finished > 0">{{ finished }}</span>
           </button>
@@ -321,8 +339,12 @@ const levelPercent = computed(() => {
   border-radius: 14px;
   display: grid;
   place-items: center;
-  font-size: 18px;
   background: rgba(15, 23, 42, 0.06);
+}
+
+.status-svg {
+  width: 22px;
+  height: 22px;
 }
 
 .status-icon.wait {

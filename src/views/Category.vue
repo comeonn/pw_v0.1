@@ -171,7 +171,7 @@ function selectL1(id: L1['id']) {
 }
 
 .content {
-  padding: 12px 12px 24px;
+  padding: 0 0 24px;
 }
 
 .panel {
@@ -182,6 +182,8 @@ function selectL1(id: L1['id']) {
   box-shadow:
     0 10px 30px rgba(15, 23, 42, 0.08),
     0 2px 10px rgba(15, 23, 42, 0.05);
+  border-left: none;
+  border-right: none;
 }
 
 .layout {
