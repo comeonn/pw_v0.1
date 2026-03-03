@@ -1,0 +1,304 @@
+<template>
+  <div class="page worker-page">
+    <header class="header-simple">
+      <button class="back-btn" type="button" @click="go('/worker/home')">←</button>
+      <div class="title">我的订单</div>
+      <div class="spacer"></div>
+    </header>
+
+    <main class="content">
+      <div class="tabs">
+        <button
+          v-for="t in tabs"
+          :key="t.id"
+          class="tab-item"
+          :class="{ active: activeTab === t.id }"
+          type="button"
+          @click="activeTab = t.id"
+        >
+          {{ t.label }}
+        </button>
+      </div>
+
+      <section class="order-list">
+        <article
+          v-for="order in filteredOrders"
+          :key="order.id"
+          class="order-card"
+        >
+          <div class="row-top">
+            <span class="order-id">{{ order.id }}</span>
+            <span class="status-tag" :class="order.status">
+              {{ statusText(order.status) }}
+            </span>
+          </div>
+          <div class="row-main">
+            <div class="title">{{ order.title }}</div>
+            <div class="mode">{{ order.mode }}</div>
+          </div>
+          <div class="row-bottom">
+            <span class="price">打手价 ￥{{ order.workerPrice }}</span>
+            <span class="time">{{ order.createdAt }}</span>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <nav class="worker-nav">
+      <button class="worker-nav-item" type="button" @click="go('/worker/home')">
+        <span class="nav-icon">📋</span>
+        <span class="nav-text">大厅</span>
+      </button>
+      <button class="worker-nav-item active" type="button">
+        <span class="nav-icon">📦</span>
+        <span class="nav-text">我的单</span>
+      </button>
+      <button class="worker-nav-item" type="button" @click="go('/worker/wallet')">
+        <span class="nav-icon">💰</span>
+        <span class="nav-text">钱包</span>
+      </button>
+    </nav>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { computed, ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { MOCK_MY_ORDERS, type WorkerOrder } from '../mock/worker'
+
+const router = useRouter()
+
+const tabs = [
+  { id: 'all', label: '全部' },
+  { id: 'ongoing', label: '进行中' },
+  { id: 'pendingConfirm', label: '待确认' },
+  { id: 'finished', label: '已完成' }
+] as const
+
+type TabId = (typeof tabs)[number]['id']
+
+const activeTab = ref<TabId>('all')
+
+const filteredOrders = computed(() => {
+  if (activeTab.value === 'all') return MOCK_MY_ORDERS
+  return MOCK_MY_ORDERS.filter((o) => o.status === activeTab.value)
+})
+
+function statusText(status: WorkerOrder['status']) {
+  switch (status) {
+    case 'waiting':
+      return '待接单'
+    case 'ongoing':
+      return '进行中'
+    case 'pendingConfirm':
+      return '待老板确认'
+    case 'finished':
+      return '已完成'
+  }
+}
+
+function go(path: string) {
+  router.push(path)
+}
+</script>
+
+<style scoped>
+.worker-page {
+  min-height: 100vh;
+  padding-bottom: 56px;
+  box-sizing: border-box;
+  background:
+    radial-gradient(circle at 0 0, rgba(34, 197, 94, 0.22), transparent 55%),
+    radial-gradient(circle at 100% 0, rgba(248, 113, 22, 0.18), transparent 60%),
+    repeating-linear-gradient(
+      0deg,
+      rgba(15, 23, 42, 0.9) 0,
+      rgba(15, 23, 42, 0.9) 1px,
+      transparent 1px,
+      transparent 22px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      rgba(15, 23, 42, 0.9) 0,
+      rgba(15, 23, 42, 0.9) 1px,
+      transparent 1px,
+      transparent 22px
+    ),
+    linear-gradient(145deg, #020617 0%, #020617 40%, #020617 100%);
+  box-sizing: border-box;
+}
+
+.header-simple {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  background: #020617;
+  color: #e5e7eb;
+  border-bottom: 1px solid #111827;
+}
+
+.back-btn {
+  border: none;
+  background: #111827;
+  color: #e5e7eb;
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 13px;
+}
+
+.title {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.spacer {
+  width: 44px;
+}
+
+.content {
+  padding: 10px 10px 12px;
+}
+
+.tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.tab-item {
+  flex: 1;
+  border-radius: 999px;
+  border: 1px solid #1e293b;
+  background:
+    radial-gradient(circle at 0 0, rgba(34, 197, 94, 0.22), transparent 55%),
+    radial-gradient(circle at 100% 0, rgba(248, 113, 22, 0.18), transparent 60%),
+    linear-gradient(135deg, #020617, #020617 60%, #020617);
+  color: #9ca3af;
+  font-size: 12px;
+  padding: 6px 0;
+}
+
+.tab-item.active {
+  background: linear-gradient(135deg, #f97316, #facc15);
+  color: #111827;
+  border-color: transparent;
+  font-weight: 700;
+}
+
+.order-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.order-card {
+  background:
+    radial-gradient(circle at 0 0, rgba(34, 197, 94, 0.18), transparent 55%),
+    radial-gradient(circle at 100% 100%, rgba(56, 189, 248, 0.18), transparent 60%),
+    linear-gradient(135deg, #020617, #020617 60%, #020617);
+  border-radius: 12px;
+  border: 1px solid rgba(31, 41, 55, 0.9);
+  padding: 8px 10px;
+  color: #e5e7eb;
+  font-size: 12px;
+  box-shadow:
+    0 14px 32px rgba(15, 23, 42, 0.9),
+    0 0 0 1px rgba(15, 23, 42, 0.9);
+}
+
+.row-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.order-id {
+  color: #6b7280;
+  font-size: 11px;
+}
+
+.status-tag {
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  background: #111827;
+}
+
+.status-tag.ongoing {
+  background: rgba(59, 130, 246, 0.18);
+  color: #bfdbfe;
+}
+
+.status-tag.pendingConfirm {
+  background: rgba(250, 204, 21, 0.2);
+  color: #facc15;
+}
+
+.status-tag.finished {
+  background: rgba(34, 197, 94, 0.2);
+  color: #bbf7d0;
+}
+
+.row-main .title {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.row-main .mode {
+  font-size: 11px;
+  color: #9ca3af;
+  margin-bottom: 4px;
+}
+
+.row-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+}
+
+.price {
+  color: #4ade80;
+  font-weight: 700;
+}
+
+.time {
+  color: #6b7280;
+}
+
+.worker-nav {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 56px;
+  background: #020617;
+  border-top: 1px solid #111827;
+  display: flex;
+}
+
+.worker-nav-item {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: #6b7280;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+}
+
+.worker-nav-item .nav-icon {
+  font-size: 16px;
+  margin-bottom: 2px;
+}
+
+.worker-nav-item.active {
+  color: #f97316;
+}
+</style>
+

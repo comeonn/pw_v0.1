@@ -176,7 +176,7 @@ function selectL1(id: L1['id']) {
 
 .panel {
   background: #ffffff;
-  border-radius: 14px;
+  border-radius: 0 14px 14px 0;
   overflow: hidden;
   border: 1px solid #e5e7eb;
   box-shadow:
