@@ -1,17 +1,12 @@
 <template>
   <div class="page">
-    <header class="header">
-      <div class="header-center">
-        <div class="header-title">分类</div>
-        <div class="header-subtitle">护航 / 跑刀 / 33 / 代肝</div>
-      </div>
-      <div class="search">
-        <span class="search-icon">🔍</span>
-        <input class="search-input" placeholder="搜道具 / 玩法 / 保底单" />
-      </div>
-    </header>
-
     <main class="content">
+      <section class="search-section">
+        <div class="search-bar">
+          <span class="icon-search">🔍</span>
+          <input class="search-input" placeholder="搜道具 / 玩法 / 保底单" />
+        </div>
+      </section>
       <section class="panel">
         <div class="layout">
           <!-- 一级分类 -->
@@ -118,47 +113,38 @@ function selectL1(id: L1['id']) {
 .page {
   min-height: 100vh;
   background: #f2f3f7;
-  padding-bottom: 60px;
+  padding-bottom: 58px;
   box-sizing: border-box;
 }
 
-.header {
-  padding: 14px 16px 14px;
-  background: linear-gradient(135deg, #121b2b, #252f4a);
-  color: #fff;
-}
-
-.header-center {
+.content {
+  min-height: calc(100vh - 58px);
   display: flex;
   flex-direction: column;
-  align-items: center;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-.header-title {
-  font-size: 16px;
-  font-weight: 600;
+.search-section {
+  padding: 12px 12px 10px;
 }
 
-.header-subtitle {
-  font-size: 12px;
-  opacity: 0.8;
-  margin-top: 4px;
-}
-
-.search {
-  margin-top: 12px;
+.search-bar {
   display: flex;
   align-items: center;
-  gap: 6px;
+  background: #ffffff;
+  border-radius: 16px;
   padding: 10px 12px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  border: 1px solid #e5e7eb;
+  box-shadow:
+    0 10px 24px rgba(15, 23, 42, 0.08),
+    0 2px 10px rgba(15, 23, 42, 0.05);
 }
 
-.search-icon {
+.icon-search {
+  margin-right: 6px;
   font-size: 14px;
-  opacity: 0.9;
+  color: #94a3b8;
 }
 
 .search-input {
@@ -166,33 +152,33 @@ function selectL1(id: L1['id']) {
   border: none;
   outline: none;
   background: transparent;
-  color: #fff;
+  color: #0f172a;
   font-size: 13px;
-}
-
-.content {
-  padding: 0 0 24px;
 }
 
 .panel {
   background: #ffffff;
-  border-radius: 0 14px 14px 0;
-  overflow: hidden;
+  border-radius: 0;
+  overflow: visible;
   border: 1px solid #e5e7eb;
   box-shadow:
     0 10px 30px rgba(15, 23, 42, 0.08),
     0 2px 10px rgba(15, 23, 42, 0.05);
   border-left: none;
   border-right: none;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .layout {
   display: flex;
-  min-height: calc(100vh - 58px - 80px);
+  min-height: 0;
+  flex: 1;
 }
 
 .lvl1 {
-  width: 94px;
+  width: 58px;
   background: linear-gradient(180deg, #f8fafc, #f4f6fb);
   border-right: 1px solid #eceef3;
   padding: 10px 8px;
@@ -263,20 +249,26 @@ function selectL1(id: L1['id']) {
 
 .main {
   flex: 1;
+  min-width: 0;
   padding: 12px 12px 14px;
 }
 
 .lvl2-row {
   display: flex;
+  flex-wrap: nowrap;
   gap: 8px;
   padding: 2px 2px 12px;
   overflow-x: auto;
+  overflow-y: hidden;
   border-bottom: 1px solid #f1f5f9;
   margin-bottom: 12px;
   -webkit-overflow-scrolling: touch;
+  touch-action: pan-x;
+  overscroll-behavior-x: contain;
 }
 
 .lvl2-chip {
+  flex: 0 0 auto;
   border: 1px solid #e5e7eb;
   background: #fff;
   padding: 6px 10px;
@@ -311,7 +303,7 @@ function selectL1(id: L1['id']) {
 
 .goods-cover {
   width: 100%;
-  height: 90px;
+  height: 170px;
   flex-shrink: 0;
   background: #0f172a;
 }
@@ -319,7 +311,7 @@ function selectL1(id: L1['id']) {
 .goods-cover img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   display: block;
 }
 

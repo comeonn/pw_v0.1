@@ -1,13 +1,5 @@
 <template>
   <div class="page">
-    <header class="header">
-      <div class="header-bg"></div>
-      <div class="header-center">
-        <div class="header-title">我的</div>
-        <div class="header-subtitle">三角洲陪玩</div>
-      </div>
-    </header>
-
     <main class="content">
       <section class="user-card">
         <div class="user-avatar">
@@ -133,44 +125,6 @@ const levelPercent = computed(() => {
   background: #f2f3f7;
   padding-bottom: 60px;
   box-sizing: border-box;
-}
-
-.header {
-  position: relative;
-  padding: 14px 16px 20px;
-  background: linear-gradient(135deg, #121b2b, #252f4a);
-  color: #fff;
-  overflow: hidden;
-}
-
-.header-bg {
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(circle at 15% 10%, rgba(255, 77, 79, 0.25), transparent 45%),
-    radial-gradient(circle at 85% 30%, rgba(99, 102, 241, 0.28), transparent 50%),
-    radial-gradient(circle at 50% 120%, rgba(34, 197, 94, 0.18), transparent 55%);
-  filter: blur(2px);
-  opacity: 0.9;
-  pointer-events: none;
-}
-
-.header-center {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  position: relative;
-}
-
-.header-title {
-  font-size: 16px;
-  font-weight: 600;
-}
-
-.header-subtitle {
-  font-size: 12px;
-  opacity: 0.8;
-  margin-top: 4px;
 }
 
 .content {

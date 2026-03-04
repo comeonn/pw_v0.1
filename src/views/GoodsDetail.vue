@@ -131,7 +131,7 @@ function orderNow() {
 .gallery-item {
   flex: 0 0 100%;
   scroll-snap-align: start;
-  height: 200px;
+  height: 260px;
   background: #0f172a;
 }
 

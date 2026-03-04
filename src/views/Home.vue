@@ -1,20 +1,5 @@
 <template>
   <div class="page">
-    <header class="header">
-      <div class="header-center">
-        <div class="header-title">三角洲陪玩</div>
-        <div class="header-subtitle">让每一局游戏更简单</div>
-      </div>
-      <div class="search-bar">
-        <span class="icon-search">🔍</span>
-        <input
-          v-model="keyword"
-          class="search-input"
-          placeholder="搜索你喜欢的单子"
-        />
-      </div>
-    </header>
-
     <main class="content">
       <section class="hero">
         <div class="hero-bg"></div>
@@ -28,6 +13,17 @@
         <span class="notice-text">
           如果打开客服页不好联系请客免单！如果开车看私加首…
         </span>
+      </section>
+
+      <section class="search-section">
+        <div class="search-bar">
+          <span class="icon-search">🔍</span>
+          <input
+            v-model="keyword"
+            class="search-input"
+            placeholder="搜索你喜欢的单子"
+          />
+        </div>
       </section>
 
       <section class="feature-row">
@@ -91,41 +87,22 @@ const filteredItems = computed(() => GOODS)
   box-sizing: border-box;
 }
 
-.header {
-  padding: 10px 12px 12px;
-  background: linear-gradient(135deg, #121b2b, #252f4a);
-  color: #fff;
-}
-
-.header-center {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 10px;
-}
-
-.header-title {
-  font-size: 15px;
-  font-weight: 600;
-}
-
-.header-subtitle {
-  font-size: 11px;
-  opacity: 0.7;
-}
-
 .search-bar {
   display: flex;
   align-items: center;
-  background: rgba(255, 255, 255, 0.12);
+  background: #ffffff;
   border-radius: 16px;
-  padding: 6px 10px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  padding: 10px 12px;
+  border: 1px solid #e5e7eb;
+  box-shadow:
+    0 10px 24px rgba(15, 23, 42, 0.08),
+    0 2px 10px rgba(15, 23, 42, 0.05);
 }
 
 .icon-search {
   margin-right: 4px;
   font-size: 14px;
+  color: #94a3b8;
 }
 
 .search-input {
@@ -134,13 +111,11 @@ const filteredItems = computed(() => GOODS)
   flex: 1;
   background: transparent;
   font-size: 14px;
-  color: #fff;
+  color: #0f172a;
 }
 
 .content {
   padding: 14px 12px 0;
-  position: relative;
-  margin-top: -2px;
 }
 
 .hero {
@@ -151,7 +126,6 @@ const filteredItems = computed(() => GOODS)
 .hero-bg {
   position: absolute;
   inset: 0;
-  top: -14px;
   background: linear-gradient(180deg, #252f4a 0%, #f2f3f7 70%);
   z-index: -1;
 }
@@ -180,6 +154,10 @@ const filteredItems = computed(() => GOODS)
 
 .notice-icon {
   margin-right: 4px;
+}
+
+.search-section {
+  margin-bottom: 18px;
 }
 
 .feature-row {
@@ -248,16 +226,17 @@ const filteredItems = computed(() => GOODS)
 }
 
 .item-cover {
-  height: 90px;
+  height: 170px;
   position: relative;
   overflow: hidden;
+  background: #020617;
 }
 
 .item-cover-image {
   width: 100%;
   height: 100%;
   display: block;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .item-info {
