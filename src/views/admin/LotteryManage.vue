@@ -26,13 +26,12 @@
 
       <div class="form-item prizes-section">
         <label class="form-label">奖品设置</label>
-        <p class="form-hint">选择参与抽奖的商品及数量，并设置每个奖品的抽中概率（总概率建议为 100%）。</p>
+        <p class="form-hint">选择参与抽奖的商品，并设置每个奖品的抽中概率（总概率建议为 100%）。</p>
         <div class="prizes-table-wrap">
           <table class="prizes-table">
             <thead>
               <tr>
                 <th>商品</th>
-                <th>数量</th>
                 <th>抽中概率（%）</th>
                 <th class="col-action">操作</th>
               </tr>
@@ -50,14 +49,6 @@
                       {{ g.name }}（¥{{ g.bossPrice }}）
                     </option>
                   </select>
-                </td>
-                <td>
-                  <input
-                    v-model.number="p.quantity"
-                    type="number"
-                    min="1"
-                    class="form-input qty-input"
-                  />
                 </td>
                 <td>
                   <input
@@ -132,7 +123,7 @@
         />
       </div>
       <div class="form-actions">
-        <button type="button" class="btn-primary">保存</button>
+        <button type="button" class="btn-primary" @click="handleSave">保存</button>
       </div>
     </section>
   </div>
@@ -155,7 +146,6 @@ const availableGoods = ref([
 interface PrizeItem {
   id: string
   goodsId: string
-  quantity: number
   probability: number
 }
 
@@ -172,9 +162,9 @@ const coverUrl = ref<string>('')
 const ruleText = ref('本期活动商品由管理员设置，支付后必得 1 单。不限制抽奖次数。')
 
 const prizes = ref<PrizeItem[]>([
-  { id: nextPrizeId(), goodsId: 'G001', quantity: 1, probability: 50 },
-  { id: nextPrizeId(), goodsId: 'G001', quantity: 2, probability: 30 },
-  { id: nextPrizeId(), goodsId: 'G001', quantity: 3, probability: 20 }
+  { id: nextPrizeId(), goodsId: 'G001', probability: 50 },
+  { id: nextPrizeId(), goodsId: 'G001', probability: 30 },
+  { id: nextPrizeId(), goodsId: 'G001', probability: 20 }
 ])
 
 const totalProbability = computed(() => {
@@ -186,13 +176,27 @@ function addPrize() {
   prizes.value.push({
     id: nextPrizeId(),
     goodsId: '',
-    quantity: 1,
     probability: 0
   })
 }
 
 function removePrize(index: number) {
   prizes.value.splice(index, 1)
+}
+
+function handleSave() {
+  if (!prizes.value.length) {
+    alert('请至少配置一个奖品')
+    return
+  }
+
+  if (totalProbability.value !== 100) {
+    alert('请将所有奖品的抽中概率合计设置为 100%')
+    return
+  }
+
+  // TODO: 接入后端保存接口
+  alert('前端校验通过（示例），后续接入保存接口')
 }
 
 function triggerCoverUpload() {
@@ -387,7 +391,7 @@ function removeCover() {
 }
 
 .goods-select {
-  min-width: 180px;
+  min-width: 220px;
   padding: 8px 10px;
   font-size: 13px;
   border: 1px solid #e5e7eb;
@@ -395,7 +399,6 @@ function removeCover() {
   background: #fff;
 }
 
-.qty-input,
 .prob-input {
   width: 80px;
   padding: 8px 10px;

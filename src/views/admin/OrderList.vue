@@ -69,7 +69,8 @@ const orderStatusText: Record<string, string> = {
   ongoing: '进行中',
   pending_confirm: '待确认',
   finished: '已完成',
-  cancelled: '已取消'
+  cancelled: '已取消',
+  unassigned: '未派单'
 }
 
 const mockOrders = ref([
@@ -77,7 +78,7 @@ const mockOrders = ref([
   { orderNo: 'ORD202503050002', userId: '10003', userName: '氪金玩家', goodsName: '跑刀代打', amount: '25.00', status: 'ongoing', createdAt: '2025-03-05 09:15' },
   { orderNo: 'ORD202503040003', userId: '10005', userName: '新手老板', goodsName: '33 上分', amount: '88.00', status: 'pending_accept', createdAt: '2025-03-04 18:30' },
   { orderNo: 'ORD202503040004', userId: '10001', userName: '老板小明', goodsName: '代肝周常', amount: '50.00', status: 'pending_confirm', createdAt: '2025-03-04 14:00' },
-  { orderNo: 'ORD202503030005', userId: '10003', userName: '氪金玩家', goodsName: '春服护航 3小时', amount: '98.00', status: 'cancelled', createdAt: '2025-03-03 16:22' }
+  { orderNo: 'ORD202503030005', userId: '10003', userName: '氪金玩家', goodsName: '春服护航 3小时', amount: '98.00', status: 'unassigned', createdAt: '2025-03-03 16:22' }
 ])
 </script>
 
@@ -175,6 +176,7 @@ const mockOrders = ref([
 .status-tag.pending_confirm { background: #fce7f3; color: #9d174d; }
 .status-tag.finished { background: #dcfce7; color: #166534; }
 .status-tag.cancelled { background: #f1f5f9; color: #64748b; }
+.status-tag.unassigned { background: #fee2e2; color: #b91c1c; }
 
 .btn-link {
   padding: 0 4px;
