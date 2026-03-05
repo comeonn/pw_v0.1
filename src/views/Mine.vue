@@ -29,7 +29,7 @@
           <span class="order-more">查看全部 ›</span>
         </div>
         <div class="order-status-row">
-          <button class="status-item" type="button">
+          <button class="status-item" type="button" @click="goBossOrders('waitingPay')">
             <span class="status-icon wait">
               <svg viewBox="0 0 24 24" class="status-svg" aria-hidden="true">
                 <rect x="3" y="5" width="18" height="14" rx="2" ry="2" fill="none" stroke="currentColor" stroke-width="1.6" />
@@ -39,7 +39,16 @@
             </span>
             <span class="status-text">待付款</span>
           </button>
-          <button class="status-item" type="button">
+          <button class="status-item" type="button" @click="goBossOrders('toDispatch')">
+            <span class="status-icon unassigned">
+              <svg viewBox="0 0 24 24" class="status-svg" aria-hidden="true">
+                <rect x="4" y="5" width="16" height="14" rx="2" ry="2" fill="none" stroke="currentColor" stroke-width="1.6" />
+                <path d="M8 9h8M8 13h4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+              </svg>
+            </span>
+            <span class="status-text">待派单</span>
+          </button>
+          <button class="status-item" type="button" @click="goBossOrders('waitingClose')">
             <span class="status-icon doing">
               <svg viewBox="0 0 24 24" class="status-svg" aria-hidden="true">
                 <rect x="5" y="3" width="14" height="18" rx="2" ry="2" fill="none" stroke="currentColor" stroke-width="1.6" />
@@ -50,7 +59,7 @@
             </span>
             <span class="status-text">待结单</span>
           </button>
-          <button class="status-item" type="button">
+          <button class="status-item" type="button" @click="goBossOrders('finished')">
             <span class="status-icon done">
               <svg viewBox="0 0 24 24" class="status-svg" aria-hidden="true">
                 <circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="1.6" />
@@ -58,15 +67,6 @@
               </svg>
             </span>
             <span class="status-text">已完成</span>
-          </button>
-          <button class="status-item" type="button" @click="goUnassigned">
-            <span class="status-icon unassigned">
-              <svg viewBox="0 0 24 24" class="status-svg" aria-hidden="true">
-                <rect x="4" y="5" width="16" height="14" rx="2" ry="2" fill="none" stroke="currentColor" stroke-width="1.6" />
-                <path d="M8 9h8M8 13h4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
-              </svg>
-            </span>
-            <span class="status-text">未派单</span>
           </button>
         </div>
       </section>
@@ -100,6 +100,8 @@
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
+type BossTabId = 'waitingPay' | 'toDispatch' | 'waitingClose' | 'finished'
+
 const waitingPay = ref(0)
 const waitingClose = ref(0)
 const finished = ref(0)
@@ -127,8 +129,8 @@ const levelPercent = computed(() => {
 
 const router = useRouter()
 
-function goUnassigned() {
-  router.push('/mine/unassigned')
+function goBossOrders(tab: BossTabId) {
+  router.push({ name: 'BossUnassignedOrders', query: { tab } })
 }
 </script>
 

@@ -23,10 +23,10 @@
       <section class="card">
         <div class="card-head">
           <span class="card-title">
-            {{ activeTab === 'unassigned' ? '未派单列表' : tabsMap[activeTab].label + '（示意）' }}
+            {{ activeTab === 'toDispatch' ? '待派单列表' : tabsMap[activeTab].label + '（示意）' }}
           </span>
         </div>
-        <div v-if="activeTab === 'unassigned' && unassignedOrders.length" class="order-list">
+        <div v-if="activeTab === 'toDispatch' && unassignedOrders.length" class="order-list">
           <article
             v-for="order in unassignedOrders"
             :key="order.id"
@@ -46,10 +46,10 @@
         </div>
         <div v-else class="empty">
           <div class="empty-title">
-            {{ activeTab === 'unassigned' ? '暂无未派单订单' : '暂无相关订单' }}
+            {{ activeTab === 'toDispatch' ? '暂无待派单订单' : '暂无相关订单' }}
           </div>
           <div class="empty-sub">
-            {{ activeTab === 'unassigned' ? '下单完成后，可在此选择派单时间' : '该状态下的订单后续接入后端后展示' }}
+            {{ activeTab === 'toDispatch' ? '下单完成后，可在此选择派单时间' : '该状态下的订单后续接入后端后展示' }}
           </div>
         </div>
       </section>
@@ -129,20 +129,20 @@ type UnassignedOrder = {
   createdAt: string
 }
 
-type TabId = 'waitingPay' | 'waitingClose' | 'finished' | 'unassigned'
+type TabId = 'waitingPay' | 'toDispatch' | 'waitingClose' | 'finished'
 
 const tabs = [
   { id: 'waitingPay', label: '待付款' },
+  { id: 'toDispatch', label: '待派单' },
   { id: 'waitingClose', label: '待结单' },
-  { id: 'finished', label: '已完成' },
-  { id: 'unassigned', label: '未派单' }
+  { id: 'finished', label: '已完成' }
 ] as const
 
 const tabsMap: Record<TabId, { id: TabId; label: string }> = {
   waitingPay: tabs[0],
-  waitingClose: tabs[1],
-  finished: tabs[2],
-  unassigned: tabs[3]
+  toDispatch: tabs[1],
+  waitingClose: tabs[2],
+  finished: tabs[3]
 }
 
 const route = useRoute()
@@ -151,7 +151,7 @@ const router = useRouter()
 const activeTab = ref<TabId>(
   (route.query.tab as TabId) && tabsMap[route.query.tab as TabId]
     ? (route.query.tab as TabId)
-    : 'unassigned'
+    : 'toDispatch'
 )
 
 const unassignedOrders = ref<UnassignedOrder[]>([
