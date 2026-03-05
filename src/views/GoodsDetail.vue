@@ -23,7 +23,6 @@
 
         <div class="price-row">
           <span class="price">￥{{ goods.price }}</span>
-          <span v-if="goods.originalPrice" class="original">￥{{ goods.originalPrice }}</span>
           <span class="sales">已售 {{ goods.sales }}</span>
         </div>
       </section>
@@ -175,12 +174,6 @@ function orderNow() {
   font-size: 18px;
   font-weight: 900;
   color: #ff4d4f;
-}
-
-.original {
-  font-size: 12px;
-  color: #94a3b8;
-  text-decoration: line-through;
 }
 
 .sales {

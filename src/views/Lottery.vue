@@ -8,7 +8,7 @@
 
     <main class="lottery-content">
       <p class="rule-tip">
-        本期活动商品由管理员设置，支付后必得 1 单，最高 3 单。不限制抽奖次数。
+        抽奖完成后您可选择立即下单，或若您需要稍作延迟，可随时在我的订单中点击派单自行操作，我们随时为您服务。
       </p>
 
       <section class="product-card">
@@ -17,7 +17,7 @@
         </div>
         <div class="product-info">
           <div class="product-name">{{ config.productName }}</div>
-          <div class="product-desc">支付后转盘开奖，获得 1～3 单权益</div>
+          <div class="product-desc">支付后转盘开奖，随机获得一款 3 小时护航商品</div>
         </div>
       </section>
 
@@ -48,7 +48,7 @@
       >
         <template v-if="isPaying">支付中…</template>
         <template v-else-if="isSpinning">开奖中…</template>
-        <template v-else>￥{{ config.price }} 抽一次（必得1单）</template>
+        <template v-else>￥{{ config.price }} 抽一次</template>
       </button>
     </main>
 
@@ -56,7 +56,7 @@
       <div v-if="showResult" class="modal-mask" @click.self="closeResult">
         <div class="result-modal">
           <div class="result-title">恭喜获得</div>
-          <div class="result-prize">{{ config.productName }} × {{ resultMultiplier }}</div>
+          <div class="result-prize">{{ resultPrizeTitle }}</div>
           <div class="result-tip">已计入您的权益，可在「我的」中查看使用</div>
           <div class="result-actions">
             <button class="result-btn primary" type="button" @click="goOrder">
@@ -75,21 +75,22 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { GOODS } from '../mock/goods'
 
 const router = useRouter()
 
 const config = ref({
-  productName: '亏本福利单',
+  productName: '3 小时春服护航抽奖礼包',
   productCover: '/goods-1.png',
   price: 59
 })
 
-const wheelLabels = ['福利单×1', '福利单×2', '福利单×3']
+const wheelLabels = ['包过勇敢者行动！', '89.9保最低500w', '3小时保底最低500w']
 const wheelRotation = ref(0)
 const isPaying = ref(false)
 const isSpinning = ref(false)
 const showResult = ref(false)
-const resultMultiplier = ref(1)
+const resultPrizeTitle = ref(wheelLabels[0] ?? '')
 
 const labelStyle = (index: number) => {
   const baseDeg = 60 + index * 120
@@ -104,11 +105,12 @@ function mockPay(): Promise<void> {
   })
 }
 
+// 模拟抽奖：按 60% / 30% / 10% 概率抽中 3 款 3 小时护航商品之一
 function mockDraw(): Promise<number> {
   const r = Math.random()
-  if (r < 0.6) return Promise.resolve(1)
-  if (r < 0.9) return Promise.resolve(2)
-  return Promise.resolve(3)
+  if (r < 0.6) return Promise.resolve(0)
+  if (r < 0.9) return Promise.resolve(1)
+  return Promise.resolve(2)
 }
 
 async function handleDraw() {
@@ -119,12 +121,12 @@ async function handleDraw() {
   } finally {
     isPaying.value = false
   }
-  const multiplier = await mockDraw()
-  resultMultiplier.value = multiplier
-  const prizeIndex = multiplier - 1
+  const prizeIndex = await mockDraw()
+  resultPrizeTitle.value = wheelLabels[prizeIndex] ?? ''
   const fullTurns = 5
   const segmentCenterDeg = 60 + prizeIndex * 120
-  const targetDeg = fullTurns * 360 + segmentCenterDeg
+  const offset = -18 // 让轮盘停在稍偏的位置，而不是指针正中
+  const targetDeg = fullTurns * 360 + segmentCenterDeg + offset
   wheelRotation.value = targetDeg
   isSpinning.value = true
   setTimeout(() => {
@@ -257,6 +259,24 @@ function goOrder() {
   position: absolute;
   inset: 0;
   border-radius: 50%;
+  pointer-events: none;
+}
+
+.wheel-center-label {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 3;
+  padding: 6px 10px;
+  max-width: 160px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: #111827;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 999px;
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.18);
   pointer-events: none;
 }
 

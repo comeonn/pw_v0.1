@@ -40,6 +40,9 @@
           :key="order.id"
           class="order-card"
         >
+          <div class="order-thumb">
+            <img :src="goodsCoverMap[order.goodsId]" :alt="order.title" />
+          </div>
           <div class="order-main">
             <div class="order-title-row">
               <span class="order-title">{{ order.title }}</span>
@@ -52,8 +55,7 @@
             </div>
             <div class="order-mode">{{ order.mode }}</div>
             <div class="order-meta">
-              <span class="price-worker">打手价 ￥{{ order.workerPrice }}</span>
-              <span class="price-boss">老板价 ￥{{ order.bossPrice }}</span>
+              <span class="price-worker"> ￥{{ order.workerPrice }}</span>
             </div>
             <div class="order-footer">
               <span class="time-light">{{ order.createdAt }}</span>
@@ -100,12 +102,21 @@
 
 <script setup lang="ts">
 import { MOCK_AVAILABLE_ORDERS, MOCK_WORKER_PROFILE } from '../mock/worker'
+import { GOODS } from '../mock/goods'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
 
 const profile = MOCK_WORKER_PROFILE
 const availableOrders = MOCK_AVAILABLE_ORDERS
+
+const goodsCoverMap: Record<number, string> = GOODS.reduce(
+  (map, g) => {
+    map[g.id] = g.cover
+    return map
+  },
+  {} as Record<number, string>
+)
 
 function go(path: string) {
   router.push(path)
@@ -266,6 +277,23 @@ function go(path: string) {
     0 0 0 1px rgba(15, 23, 42, 0.9);
 }
 
+.order-thumb {
+  width: 64px;
+  height: 64px;
+  border-radius: 12px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: #0f172a;
+  border: 1px solid rgba(148, 163, 184, 0.6);
+}
+
+.order-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
 .order-main {
   flex: 1;
   min-width: 0;
@@ -315,12 +343,6 @@ function go(path: string) {
   font-size: 13px;
   font-weight: 800;
   color: #4ade80;
-}
-
-.price-boss {
-  font-size: 11px;
-  color: #9ca3af;
-  text-decoration: line-through;
 }
 
 .order-footer {

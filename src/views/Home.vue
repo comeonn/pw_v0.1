@@ -58,10 +58,7 @@
             <div class="item-title">{{ item.title }}</div>
             <div class="item-meta">
               <span class="item-price">￥{{ item.price }}</span>
-              <span class="item-original" v-if="item.originalPrice">
-                ￥{{ item.originalPrice }}
-              </span>
-              <span class="item-sales">已接 {{ item.sales }} 单</span>
+              <span class="item-sales">已售 {{ item.sales }}</span>
             </div>
           </div>
         </router-link>
@@ -259,12 +256,6 @@ const filteredItems = computed(() => GOODS)
 .item-price {
   color: #ff4d4f;
   font-weight: 600;
-}
-
-.item-original {
-  font-size: 11px;
-  color: #999;
-  text-decoration: line-through;
 }
 
 .item-sales {

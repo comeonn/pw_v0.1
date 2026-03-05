@@ -38,7 +38,6 @@
               </svg>
             </span>
             <span class="status-text">待付款</span>
-            <span class="status-badge" v-if="waitingPay > 0">{{ waitingPay }}</span>
           </button>
           <button class="status-item" type="button">
             <span class="status-icon doing">
@@ -50,7 +49,6 @@
               </svg>
             </span>
             <span class="status-text">待结单</span>
-            <span class="status-badge" v-if="waitingClose > 0">{{ waitingClose }}</span>
           </button>
           <button class="status-item" type="button">
             <span class="status-icon done">
@@ -60,7 +58,15 @@
               </svg>
             </span>
             <span class="status-text">已完成</span>
-            <span class="status-badge" v-if="finished > 0">{{ finished }}</span>
+          </button>
+          <button class="status-item" type="button" @click="goUnassigned">
+            <span class="status-icon unassigned">
+              <svg viewBox="0 0 24 24" class="status-svg" aria-hidden="true">
+                <rect x="4" y="5" width="16" height="14" rx="2" ry="2" fill="none" stroke="currentColor" stroke-width="1.6" />
+                <path d="M8 9h8M8 13h4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+              </svg>
+            </span>
+            <span class="status-text">未派单</span>
           </button>
         </div>
       </section>
@@ -92,6 +98,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { useRouter } from 'vue-router'
 
 const waitingPay = ref(0)
 const waitingClose = ref(0)
@@ -117,6 +124,12 @@ const levelPercent = computed(() => {
   if (next <= 0) return 0
   return Math.max(0, Math.min(100, Math.round((exp / next) * 100)))
 })
+
+const router = useRouter()
+
+function goUnassigned() {
+  router.push('/mine/unassigned')
+}
 </script>
 
 <style scoped>
@@ -313,6 +326,10 @@ const levelPercent = computed(() => {
   background: rgba(34, 197, 94, 0.12);
 }
 
+.status-icon.unassigned {
+  background: rgba(148, 163, 184, 0.14);
+}
+
 .status-badge {
   position: absolute;
   top: 8px;
@@ -412,6 +429,154 @@ const levelPercent = computed(() => {
   font-size: 18px;
   color: #c0c0c0;
   font-weight: 300;
+}
+
+.unassigned-list {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.unassigned-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.unassigned-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.unassigned-title {
+  font-size: 13px;
+  color: #0f172a;
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+
+.unassigned-meta {
+  display: flex;
+  gap: 6px;
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+.unassigned-price {
+  font-weight: 600;
+  color: #ef4444;
+}
+
+.unassigned-time {
+  margin-left: auto;
+}
+
+.unassigned-btn {
+  flex-shrink: 0;
+  border-radius: 999px;
+  border: none;
+  padding: 6px 10px;
+  font-size: 12px;
+  background: linear-gradient(135deg, #ff4d4f, #ff7a45);
+  color: #fff;
+  cursor: pointer;
+}
+
+.dispatch-mask {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.dispatch-modal {
+  width: 100%;
+  max-width: 360px;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 18px 16px 14px;
+  box-shadow:
+    0 18px 40px rgba(15, 23, 42, 0.15),
+    0 0 0 1px rgba(15, 23, 42, 0.04);
+}
+
+.dispatch-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 4px;
+}
+
+.dispatch-sub {
+  font-size: 12px;
+  color: #64748b;
+  margin-bottom: 10px;
+}
+
+.dispatch-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.dispatch-label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  color: #4b5563;
+}
+
+.dispatch-input {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  font-size: 13px;
+  box-sizing: border-box;
+}
+
+.dispatch-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.1);
+}
+
+.dispatch-input.textarea {
+  resize: vertical;
+}
+
+.dispatch-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.dispatch-btn {
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.dispatch-btn.secondary {
+  background: #ffffff;
+  border-color: #e5e7eb;
+  color: #4b5563;
+}
+
+.dispatch-btn.primary {
+  background: linear-gradient(135deg, #ff4d4f, #ff7a45);
+  color: #ffffff;
 }
 </style>
 

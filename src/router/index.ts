@@ -3,6 +3,7 @@ import Home from '../views/Home.vue'
 import Lottery from '../views/Lottery.vue'
 import Category from '../views/Category.vue'
 import Mine from '../views/Mine.vue'
+import BossUnassignedOrders from '../views/BossUnassignedOrders.vue'
 import GoodsDetail from '../views/GoodsDetail.vue'
 import WorkerHome from '../views/WorkerHome.vue'
 import WorkerOrders from '../views/WorkerOrders.vue'
@@ -23,6 +24,7 @@ const router = createRouter({
     { path: '/lottery', name: 'Lottery', component: Lottery, meta: { showTabbar: false } },
     { path: '/category', name: 'Category', component: Category, meta: { showTabbar: true } },
     { path: '/mine', name: 'Mine', component: Mine, meta: { showTabbar: true } },
+    { path: '/mine/unassigned', name: 'BossUnassignedOrders', component: BossUnassignedOrders, meta: { showTabbar: false } },
     { path: '/goods/:id', name: 'GoodsDetail', component: GoodsDetail, meta: { showTabbar: false } },
     // 打手端路由（独立入口，服务号菜单可直接跳 /worker/home）
     { path: '/worker', redirect: '/worker/home' },
