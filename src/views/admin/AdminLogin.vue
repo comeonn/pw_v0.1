@@ -47,7 +47,7 @@ async function submit() {
   try {
     // TODO: 调用 POST /api/admin/login，存 token
     await new Promise((r) => setTimeout(r, 600))
-    router.push('/admin/dashboard')
+    router.push('/admin/users')
   } finally {
     loading.value = false
   }

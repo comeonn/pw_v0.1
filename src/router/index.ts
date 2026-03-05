@@ -9,12 +9,12 @@ import WorkerOrders from '../views/WorkerOrders.vue'
 import WorkerWallet from '../views/WorkerWallet.vue'
 import AdminLayout from '../layouts/AdminLayout.vue'
 import AdminLogin from '../views/admin/AdminLogin.vue'
-import Dashboard from '../views/admin/Dashboard.vue'
 import UserList from '../views/admin/UserList.vue'
 import OrderList from '../views/admin/OrderList.vue'
 import WithdrawList from '../views/admin/WithdrawList.vue'
 import GoodsManage from '../views/admin/GoodsManage.vue'
 import CopyManage from '../views/admin/CopyManage.vue'
+import LotteryManage from '../views/admin/LotteryManage.vue'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -36,13 +36,13 @@ const router = createRouter({
       component: AdminLayout,
       meta: { showTabbar: false, admin: true },
       children: [
-        { path: '', redirect: '/admin/dashboard' },
-        { path: 'dashboard', name: 'Dashboard', component: Dashboard },
+        { path: '', redirect: '/admin/users' },
         { path: 'users', name: 'UserList', component: UserList },
         { path: 'orders', name: 'OrderList', component: OrderList },
         { path: 'withdraws', name: 'WithdrawList', component: WithdrawList },
         { path: 'goods', name: 'GoodsManage', component: GoodsManage },
-        { path: 'copy', name: 'CopyManage', component: CopyManage }
+        { path: 'copy', name: 'CopyManage', component: CopyManage },
+        { path: 'lottery', name: 'LotteryManage', component: LotteryManage }
       ]
     }
   ]

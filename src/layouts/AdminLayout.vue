@@ -3,10 +3,6 @@
     <aside class="admin-sidebar">
       <div class="sidebar-brand">运营后台</div>
       <nav class="sidebar-nav">
-        <router-link to="/admin/dashboard" class="nav-item" active-class="active">
-          <span class="nav-icon">📊</span>
-          <span class="nav-text">概览</span>
-        </router-link>
         <router-link to="/admin/users" class="nav-item" active-class="active">
           <span class="nav-icon">👥</span>
           <span class="nav-text">用户管理</span>
@@ -15,7 +11,11 @@
           <span class="nav-icon">📋</span>
           <span class="nav-text">订单管理</span>
         </router-link>
-        <router-link to="/admin/withdraws" class="nav-item" active-class="active">
+        <router-link to="/admin/lottery" class="nav-item" active-class="active">
+          <span class="nav-icon">🎰</span>
+          <span class="nav-text">抽奖管理</span>
+        </router-link>
+        <router-link v-if="false" to="/admin/withdraws" class="nav-item" active-class="active">
           <span class="nav-icon">💰</span>
           <span class="nav-text">提现管理</span>
         </router-link>
@@ -53,12 +53,12 @@ const route = useRoute()
 const router = useRouter()
 
 const titleMap: Record<string, string> = {
-  Dashboard: '概览',
   UserList: '用户管理',
   OrderList: '订单管理',
   WithdrawList: '提现管理',
   GoodsManage: '商品管理',
-  CopyManage: '文案管理'
+  CopyManage: '文案管理',
+  LotteryManage: '抽奖管理'
 }
 
 const currentTitle = computed(() => {
