@@ -83,7 +83,10 @@ import { useRoute, useRouter } from 'vue-router'
 const route = useRoute()
 const router = useRouter()
 
-const showTabbar = computed(() => (route.meta.showTabbar as boolean) !== false)
+const showTabbar = computed(() => {
+  if (route.path.startsWith('/admin')) return false
+  return (route.meta.showTabbar as boolean) !== false
+})
 
 function isActive(name: string) {
   return route.name === name

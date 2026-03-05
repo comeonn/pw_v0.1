@@ -7,6 +7,14 @@ import GoodsDetail from '../views/GoodsDetail.vue'
 import WorkerHome from '../views/WorkerHome.vue'
 import WorkerOrders from '../views/WorkerOrders.vue'
 import WorkerWallet from '../views/WorkerWallet.vue'
+import AdminLayout from '../layouts/AdminLayout.vue'
+import AdminLogin from '../views/admin/AdminLogin.vue'
+import Dashboard from '../views/admin/Dashboard.vue'
+import UserList from '../views/admin/UserList.vue'
+import OrderList from '../views/admin/OrderList.vue'
+import WithdrawList from '../views/admin/WithdrawList.vue'
+import GoodsManage from '../views/admin/GoodsManage.vue'
+import CopyManage from '../views/admin/CopyManage.vue'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -20,7 +28,23 @@ const router = createRouter({
     { path: '/worker', redirect: '/worker/home' },
     { path: '/worker/home', name: 'WorkerHome', component: WorkerHome, meta: { showTabbar: false } },
     { path: '/worker/orders', name: 'WorkerOrders', component: WorkerOrders, meta: { showTabbar: false } },
-    { path: '/worker/wallet', name: 'WorkerWallet', component: WorkerWallet, meta: { showTabbar: false } }
+    { path: '/worker/wallet', name: 'WorkerWallet', component: WorkerWallet, meta: { showTabbar: false } },
+    // 运营后台（PC，左侧菜单 + 顶栏 + 内容区）
+    { path: '/admin/login', name: 'AdminLogin', component: AdminLogin, meta: { showTabbar: false, admin: true } },
+    {
+      path: '/admin',
+      component: AdminLayout,
+      meta: { showTabbar: false, admin: true },
+      children: [
+        { path: '', redirect: '/admin/dashboard' },
+        { path: 'dashboard', name: 'Dashboard', component: Dashboard },
+        { path: 'users', name: 'UserList', component: UserList },
+        { path: 'orders', name: 'OrderList', component: OrderList },
+        { path: 'withdraws', name: 'WithdrawList', component: WithdrawList },
+        { path: 'goods', name: 'GoodsManage', component: GoodsManage },
+        { path: 'copy', name: 'CopyManage', component: CopyManage }
+      ]
+    }
   ]
 })
 
