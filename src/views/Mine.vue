@@ -72,6 +72,14 @@
 
       <section class="menu-list">
         <div class="menu-group">
+          <router-link class="menu-item" to="/mine/wallet">
+            <span class="menu-icon-wrap purple"><span class="menu-icon">💰</span></span>
+            <span class="menu-text">
+              <span class="menu-main">钱包</span>
+              <span class="menu-sub">充值余额，支付更方便</span>
+            </span>
+            <span class="menu-arrow">›</span>
+          </router-link>
           <a class="menu-item" href="javascript:;">
             <span class="menu-icon-wrap green"><span class="menu-icon">💬</span></span>
             <span class="menu-text">
