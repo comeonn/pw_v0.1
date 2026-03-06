@@ -27,9 +27,6 @@
       </section>
 
       <section class="feature-row">
-        <button class="feature-card feature-hot card-elevated" type="button">
-          <img :src="hotPosterSrc" alt="热门推荐" class="feature-image" />
-        </button>
         <router-link
           to="/lottery"
           class="feature-card feature-lottery card-elevated"
@@ -76,7 +73,6 @@ const keyword = ref('')
 const filteredItems = computed(() => GOODS)
 
 const homePosterSrc = ref(localStorage.getItem('home_poster') || '/banner-ksdj.png')
-const hotPosterSrc = ref(localStorage.getItem('hot_poster') || '/hot-card.png')
 const lotteryPosterSrc = ref(localStorage.getItem('lottery_poster') || '/lottery-card.png')
 </script>
 
@@ -164,7 +160,7 @@ const lotteryPosterSrc = ref(localStorage.getItem('lottery_poster') || '/lottery
 .feature-row {
   display: flex;
   gap: 8px;
-  margin-bottom: 18px;
+  margin-bottom: 6px;
 }
 
 .feature-card {
@@ -192,6 +188,7 @@ const lotteryPosterSrc = ref(localStorage.getItem('lottery_poster') || '/lottery
 
 .category-section {
   margin-bottom: 0;
+  margin-top: 0;
 }
 
 .goods-header {

@@ -10,7 +10,6 @@
             {{ user.name }}
             <span class="user-id">ID: {{ user.id }}</span>
           </div>
-          <div class="user-tip">{{ user.slogan }}</div>
           <div class="level-row">
             <div class="level-label">Lv.{{ user.level }}</div>
             <div class="level-bar">
@@ -71,17 +70,8 @@
         </div>
       </section>
 
-      <!-- 菜单：把“我的权益”和“联系客服”放一起，去掉投诉入口和设置 -->
       <section class="menu-list">
         <div class="menu-group">
-          <a class="menu-item" href="javascript:;">
-            <span class="menu-icon-wrap purple"><span class="menu-icon">🎫</span></span>
-            <span class="menu-text">
-              <span class="menu-main">我的权益</span>
-              <span class="menu-sub">抽奖获得的次数/权益</span>
-            </span>
-            <span class="menu-arrow">›</span>
-          </a>
           <a class="menu-item" href="javascript:;">
             <span class="menu-icon-wrap green"><span class="menu-icon">💬</span></span>
             <span class="menu-text">
@@ -105,7 +95,6 @@ type BossTabId = 'waitingPay' | 'toDispatch' | 'waitingClose' | 'finished'
 const user = ref({
   id: 'BOSS-1024',
   name: '怪兽老板',
-  slogan: '今天也要稳定上分',
   level: 12,
   exp: 340,
   nextExp: 500,

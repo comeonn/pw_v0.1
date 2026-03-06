@@ -5,9 +5,6 @@
         <div class="worker-tag" :class="profile.level">
           {{ profile.level === 'gold' ? '金牌打手' : '普通打手' }}
         </div>
-        <button class="to-wallet" type="button" @click="go('/worker/wallet')">
-          钱包明细 ›
-        </button>
       </div>
       <div class="profile-row">
         <div class="avatar">
@@ -19,7 +16,6 @@
             <span class="id">ID: {{ profile.id }}</span>
           </div>
           <div class="stats-row">
-            <span>今日收入 ￥{{ profile.todayIncome.toFixed(1) }}</span>
             <span>本月收入 ￥{{ profile.monthIncome.toFixed(1) }}</span>
             <span>完单 {{ profile.totalOrders }}</span>
             <span>评分 {{ profile.rating.toFixed(1) }}</span>
@@ -31,7 +27,6 @@
     <main class="content">
       <section class="section-head">
         <div class="section-title">接单大厅</div>
-        <div class="section-sub">仅展示当前可接的老板订单</div>
       </section>
 
       <section class="order-list">

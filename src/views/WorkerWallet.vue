@@ -12,16 +12,6 @@
           <div class="wallet-label">可提现余额（元）</div>
           <div class="wallet-balance">￥{{ wallet.balance.toFixed(2) }}</div>
         </div>
-        <div class="wallet-bottom">
-          <div class="wallet-item">
-            <div class="wallet-item-label">累计收入</div>
-            <div class="wallet-item-value">￥{{ wallet.totalIncome.toFixed(2) }}</div>
-          </div>
-          <div class="wallet-item">
-            <div class="wallet-item-label">累计提现</div>
-            <div class="wallet-item-value">￥{{ wallet.totalWithdrawn.toFixed(2) }}</div>
-          </div>
-        </div>
         <button class="withdraw-btn" type="button" @click="showWithdraw = true">
           提现
         </button>
@@ -204,7 +194,7 @@ function go(path: string) {
 }
 
 .withdraw-btn {
-  margin-top: 4px;
+  margin-top: 14px;
   width: 100%;
   padding: 10px 0;
   border-radius: 999px;
