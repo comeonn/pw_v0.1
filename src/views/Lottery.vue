@@ -146,7 +146,8 @@ async function handleDraw() {
   const fullTurns = 5
   const segmentCenterDeg = 60 + prizeIndex * 120
   const offset = -18 // 让轮盘停在稍偏的位置，而不是指针正中
-  const targetDeg = fullTurns * 360 + segmentCenterDeg + offset
+  // 在当前角度基础上累加，否则第二次第三次会逆着转且只转一点
+  const targetDeg = wheelRotation.value + fullTurns * 360 + segmentCenterDeg + offset
   wheelRotation.value = targetDeg
   isSpinning.value = true
   setTimeout(() => {
