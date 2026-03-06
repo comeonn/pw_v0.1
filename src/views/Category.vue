@@ -9,37 +9,22 @@
       </section>
       <section class="panel">
         <div class="layout">
-          <!-- 一级分类 -->
+          <!-- 左侧一级分类（仅此一级） -->
           <aside class="lvl1">
             <button
-              v-for="c1 in level1"
-              :key="c1.id"
+              v-for="c in categories"
+              :key="c.id"
               class="lvl1-item"
-              :class="{ active: c1.id === activeL1 }"
+              :class="{ active: c.id === activeCategory }"
               type="button"
-              @click="selectL1(c1.id)"
+              @click="activeCategory = c.id"
             >
-              <span class="lvl1-icon" aria-hidden="true">{{ c1.icon }}</span>
-              <span class="lvl1-name">{{ c1.name }}</span>
-              <span class="lvl1-sub">精选</span>
+              <span class="lvl1-name">{{ c.name }}</span>
             </button>
           </aside>
 
-          <!-- 二级分类 + 商品 -->
+          <!-- 右侧商品列表 -->
           <section class="main">
-            <div class="lvl2-row">
-              <button
-                v-for="c2 in level2"
-                :key="c2.id"
-                class="lvl2-chip"
-                :class="{ active: c2.id === activeL2 }"
-                type="button"
-                @click="activeL2 = c2.id"
-              >
-                {{ c2.name }}
-              </button>
-            </div>
-
             <div class="goods">
               <router-link
                 v-for="g in filteredGoods"
@@ -74,39 +59,32 @@
 import { computed, ref } from 'vue'
 import { GOODS } from '../mock/goods'
 
-type L1 = { id: 'escort' | 'loot' | '33' | 'grind'; name: string; icon: string }
-type L2 = {
-  id: 'prop' | 'single' | 'special' | 'basic' | 'opening'
-  name: string
-}
+type CategoryId = 'basic' | 'hourly' | 'fun' | 'red' | 'clear'
 
-const level1: L1[] = [
-  { id: 'escort', name: '护航', icon: '🛡️' },
-  { id: 'loot', name: '跑刀', icon: '🏃' },
-  { id: '33', name: '33', icon: '🎯' },
-  { id: 'grind', name: '代肝', icon: '⏳' }
-]
-
-const level2: L2[] = [
-  { id: 'prop', name: '道具单' },
-  { id: 'single', name: '单局赌单' },
-  { id: 'special', name: '特殊玩法' },
+const categories: { id: CategoryId; name: string }[] = [
   { id: 'basic', name: '基础保底' },
-  { id: 'opening', name: '开业福利' }
+  { id: 'hourly', name: '小时陪玩' },
+  { id: 'fun', name: '趣味玩法' },
+  { id: 'red', name: '赌红玩法' },
+  { id: 'clear', name: '清图玩法' }
 ]
 
-const activeL1 = ref<L1['id']>('escort')
-const activeL2 = ref<L2['id']>('basic')
+const activeCategory = ref<CategoryId>('basic')
+
+/** 将商品按 l1/l2 映射到新五类，便于现有 mock 数据有展示 */
+function goodsCategory(g: (typeof GOODS)[number]): CategoryId {
+  if (g.l2 === 'basic') return 'basic'
+  if (g.l1 === 'escort') return 'hourly'
+  if (g.l2 === 'special' || g.l1 === '33') return 'fun'
+  if (g.l2 === 'single') return 'red'
+  if (g.l1 === 'loot') return 'clear'
+  if (g.l1 === 'grind') return 'basic'
+  return 'basic'
+}
 
 const filteredGoods = computed(() =>
-  GOODS.filter((g) => g.l1 === activeL1.value && g.l2 === activeL2.value)
+  GOODS.filter((g) => goodsCategory(g) === activeCategory.value)
 )
-
-function selectL1(id: L1['id']) {
-  activeL1.value = id
-  // 切一级时，二级回到“基础保底”，避免空列表
-  activeL2.value = 'basic'
-}
 </script>
 
 <style scoped>
@@ -178,25 +156,30 @@ function selectL1(id: L1['id']) {
 }
 
 .lvl1 {
-  width: 58px;
+  width: 88px;
+  flex-shrink: 0;
   background: linear-gradient(180deg, #f8fafc, #f4f6fb);
   border-right: 1px solid #eceef3;
-  padding: 10px 8px;
+  padding: 10px 6px;
 }
 
 .lvl1-item {
   width: 100%;
   border: none;
   background: transparent;
-  padding: 10px 8px;
+  padding: 12px 6px;
   font-size: 13px;
   color: #475569;
   text-align: center;
-  border-radius: 12px;
-  display: grid;
-  place-items: center;
-  gap: 4px;
+  border-radius: 10px;
+  display: block;
   cursor: pointer;
+  line-height: 1.35;
+  margin-bottom: 4px;
+}
+
+.lvl1-item:last-child {
+  margin-bottom: 0;
 }
 
 .lvl1-item.active {
@@ -210,79 +193,23 @@ function selectL1(id: L1['id']) {
 .lvl1-item.active::before {
   content: '';
   position: absolute;
-  left: -8px;
-  top: 12px;
-  bottom: 12px;
+  left: -6px;
+  top: 10px;
+  bottom: 10px;
   width: 4px;
   background: #ff4d4f;
   border-radius: 999px;
 }
 
-.lvl1-icon {
-  width: 34px;
-  height: 34px;
-  border-radius: 12px;
-  display: grid;
-  place-items: center;
-  background: rgba(15, 23, 42, 0.06);
-  font-size: 16px;
-}
-
-.lvl1-item.active .lvl1-icon {
-  background: rgba(255, 77, 79, 0.12);
-}
-
 .lvl1-name {
-  font-size: 12px;
-  line-height: 1;
-}
-
-.lvl1-sub {
-  font-size: 10px;
-  color: #94a3b8;
-  line-height: 1;
-}
-
-.lvl1-item.active .lvl1-sub {
-  color: rgba(255, 77, 79, 0.8);
+  font-size: 13px;
+  line-height: 1.35;
 }
 
 .main {
   flex: 1;
   min-width: 0;
   padding: 12px 12px 14px;
-}
-
-.lvl2-row {
-  display: flex;
-  flex-wrap: nowrap;
-  gap: 8px;
-  padding: 2px 2px 12px;
-  overflow-x: auto;
-  overflow-y: hidden;
-  border-bottom: 1px solid #f1f5f9;
-  margin-bottom: 12px;
-  -webkit-overflow-scrolling: touch;
-  touch-action: pan-x;
-  overscroll-behavior-x: contain;
-}
-
-.lvl2-chip {
-  flex: 0 0 auto;
-  border: 1px solid #e5e7eb;
-  background: #fff;
-  padding: 6px 10px;
-  border-radius: 999px;
-  font-size: 12px;
-  color: #475569;
-  white-space: nowrap;
-}
-
-.lvl2-chip.active {
-  border-color: rgba(255, 77, 79, 0.35);
-  background: rgba(255, 77, 79, 0.1);
-  color: #ff4d4f;
-  font-weight: 600;
 }
 
 .goods {

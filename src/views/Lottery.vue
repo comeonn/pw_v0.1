@@ -4,6 +4,9 @@
       <button class="back-btn" type="button" @click="router.push('/')">
         ← 返回
       </button>
+      <button class="notice-btn" type="button" @click="showPublic = true">
+        公示
+      </button>
     </header>
 
     <main class="lottery-content">
@@ -69,13 +72,28 @@
         </div>
       </div>
     </Teleport>
+
+    <Teleport to="body">
+      <div v-if="showPublic" class="modal-mask" @click.self="showPublic = false">
+        <div class="public-modal">
+          <div class="public-title">公示</div>
+          <div class="public-content">
+            <pre class="public-text">{{ publicText || '暂无公示内容' }}</pre>
+          </div>
+          <div class="public-actions">
+            <button class="result-btn primary" type="button" @click="showPublic = false">
+              知道了
+            </button>
+          </div>
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { GOODS } from '../mock/goods'
 
 const router = useRouter()
 
@@ -91,6 +109,8 @@ const isPaying = ref(false)
 const isSpinning = ref(false)
 const showResult = ref(false)
 const resultPrizeTitle = ref(wheelLabels[0] ?? '')
+const showPublic = ref(false)
+const publicText = ref(localStorage.getItem('lottery_public_text') ?? '')
 
 const labelStyle = (index: number) => {
   const baseDeg = 60 + index * 120
@@ -168,6 +188,19 @@ function goOrder() {
   color: #fff;
   font-size: 14px;
   cursor: pointer;
+}
+
+.notice-btn {
+  border: none;
+  background: none;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 11px;
+  padding: 4px 8px;
+  cursor: pointer;
+}
+
+.notice-btn:active {
+  opacity: 0.8;
 }
 
 .lottery-content {
@@ -330,6 +363,46 @@ function goOrder() {
   width: 100%;
   max-width: 320px;
   text-align: center;
+}
+
+.public-modal {
+  background: #fff;
+  border-radius: 16px;
+  padding: 18px 16px 14px;
+  width: 100%;
+  max-width: 360px;
+}
+
+.public-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 10px;
+}
+
+.public-content {
+  max-height: 55vh;
+  overflow: auto;
+  border: 1px solid #eef2f7;
+  border-radius: 12px;
+  background: #f8fafc;
+  padding: 10px 12px;
+}
+
+.public-text {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #334155;
+  font-family: inherit;
+}
+
+.public-actions {
+  margin-top: 12px;
+  display: flex;
+  justify-content: flex-end;
 }
 
 .result-title {

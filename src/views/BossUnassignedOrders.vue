@@ -119,7 +119,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 type UnassignedOrder = {
@@ -176,8 +176,6 @@ const formPhone = ref('')
 const formGameId = ref('')
 const formName = ref('')
 const formRemark = ref('')
-
-const unassignedCount = computed(() => unassignedOrders.value.length)
 
 function changeTab(id: TabId) {
   activeTab.value = id

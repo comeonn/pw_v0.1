@@ -102,10 +102,6 @@ import { useRouter } from 'vue-router'
 
 type BossTabId = 'waitingPay' | 'toDispatch' | 'waitingClose' | 'finished'
 
-const waitingPay = ref(0)
-const waitingClose = ref(0)
-const finished = ref(0)
-
 const user = ref({
   id: 'BOSS-1024',
   name: '怪兽老板',

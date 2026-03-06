@@ -122,6 +122,16 @@
           placeholder="例如：本期活动商品由管理员设置，支付后必得 1 单。不限制抽奖次数。"
         />
       </div>
+      <div class="form-item">
+        <label class="form-label">公示设置</label>
+        <textarea
+          v-model="publicText"
+          class="form-input textarea"
+          rows="4"
+          placeholder="填写公示内容（老板端抽奖页右上角“公示”按钮中展示）"
+        />
+        <p class="form-hint">支持输入多行文本。</p>
+      </div>
       <div class="form-actions">
         <button type="button" class="btn-primary" @click="handleSave">保存</button>
       </div>
@@ -160,6 +170,7 @@ const price = ref(9.9)
 const productName = ref('春服护航 1 单')
 const coverUrl = ref<string>('')
 const ruleText = ref('本期活动商品由管理员设置，支付后必得 1 单。不限制抽奖次数。')
+const publicText = ref(localStorage.getItem('lottery_public_text') ?? '')
 
 const prizes = ref<PrizeItem[]>([
   { id: nextPrizeId(), goodsId: 'G001', probability: 50 },
@@ -195,8 +206,9 @@ function handleSave() {
     return
   }
 
+  localStorage.setItem('lottery_public_text', publicText.value ?? '')
   // TODO: 接入后端保存接口
-  alert('前端校验通过（示例），后续接入保存接口')
+  alert('已保存（本地示例），后续接入保存接口')
 }
 
 function triggerCoverUpload() {

@@ -4,7 +4,7 @@
       <section class="hero">
         <div class="hero-bg"></div>
         <div class="banner">
-          <img src="/banner-ksdj.png" alt="怪兽电竞" class="banner-image" />
+          <img :src="homePosterSrc" alt="首页海报" class="banner-image" />
         </div>
       </section>
 
@@ -28,13 +28,13 @@
 
       <section class="feature-row">
         <button class="feature-card feature-hot card-elevated" type="button">
-          <img src="/hot-card.png" alt="热门推荐" class="feature-image" />
+          <img :src="hotPosterSrc" alt="热门推荐" class="feature-image" />
         </button>
         <router-link
           to="/lottery"
           class="feature-card feature-lottery card-elevated"
         >
-          <img src="/lottery-card.png" alt="抽奖转盘" class="feature-image" />
+          <img :src="lotteryPosterSrc" alt="抽奖转盘" class="feature-image" />
         </router-link>
       </section>
 
@@ -74,6 +74,10 @@ import { GOODS } from '../mock/goods'
 const keyword = ref('')
 
 const filteredItems = computed(() => GOODS)
+
+const homePosterSrc = ref(localStorage.getItem('home_poster') || '/banner-ksdj.png')
+const hotPosterSrc = ref(localStorage.getItem('hot_poster') || '/hot-card.png')
+const lotteryPosterSrc = ref(localStorage.getItem('lottery_poster') || '/lottery-card.png')
 </script>
 
 <style scoped>

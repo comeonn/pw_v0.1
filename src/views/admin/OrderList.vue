@@ -39,21 +39,39 @@
             <tr v-for="o in mockOrders" :key="o.orderNo">
               <td>{{ o.orderNo }}</td>
               <td>{{ o.userName }} ({{ o.userId }})</td>
-              <td>{{ o.goodsName }}</td>
+              <td class="col-goods">
+                <img :src="o.goodsCover" :alt="o.goodsName" class="goods-thumb" />
+                <span>{{ o.goodsName }}</span>
+              </td>
               <td>¥{{ o.amount }}</td>
               <td>
                 <span :class="['status-tag', o.status]">{{ orderStatusText[o.status] }}</span>
               </td>
               <td>{{ o.createdAt }}</td>
               <td>
-                <button type="button" class="btn-link">备注</button>
-                <button type="button" class="btn-link">改状态</button>
+                <button type="button" class="btn-link" @click="openDetail(o)">详情</button>
               </td>
             </tr>
           </tbody>
         </table>
       </div>
     </section>
+
+    <div v-if="detailOrder" class="modal-mask" @click.self="detailOrder = null">
+      <div class="detail-modal">
+        <div class="detail-title">商品详情</div>
+        <div class="detail-body">
+          <img :src="detailOrder.goodsCover" :alt="detailOrder.goodsName" class="detail-cover" />
+          <div class="detail-row"><span class="detail-label">商品名称</span>{{ detailOrder.goodsName }}</div>
+          <div class="detail-row"><span class="detail-label">订单金额</span>¥{{ detailOrder.amount }}</div>
+          <div class="detail-row"><span class="detail-label">订单号</span>{{ detailOrder.orderNo }}</div>
+          <div class="detail-row"><span class="detail-label">下单时间</span>{{ detailOrder.createdAt }}</div>
+        </div>
+        <div class="detail-actions">
+          <button type="button" class="btn-secondary" @click="detailOrder = null">关闭</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -73,13 +91,30 @@ const orderStatusText: Record<string, string> = {
   unassigned: '未派单'
 }
 
-const mockOrders = ref([
-  { orderNo: 'ORD202503050001', userId: '10001', userName: '老板小明', goodsName: '春服护航 1小时', amount: '38.00', status: 'finished', createdAt: '2025-03-04 10:20' },
-  { orderNo: 'ORD202503050002', userId: '10003', userName: '氪金玩家', goodsName: '跑刀代打', amount: '25.00', status: 'ongoing', createdAt: '2025-03-05 09:15' },
-  { orderNo: 'ORD202503040003', userId: '10005', userName: '新手老板', goodsName: '33 上分', amount: '88.00', status: 'pending_accept', createdAt: '2025-03-04 18:30' },
-  { orderNo: 'ORD202503040004', userId: '10001', userName: '老板小明', goodsName: '代肝周常', amount: '50.00', status: 'pending_confirm', createdAt: '2025-03-04 14:00' },
-  { orderNo: 'ORD202503030005', userId: '10003', userName: '氪金玩家', goodsName: '春服护航 3小时', amount: '98.00', status: 'unassigned', createdAt: '2025-03-03 16:22' }
+type OrderRow = {
+  orderNo: string
+  userId: string
+  userName: string
+  goodsName: string
+  goodsCover: string
+  amount: string
+  status: string
+  createdAt: string
+}
+
+const mockOrders = ref<OrderRow[]>([
+  { orderNo: 'ORD202503050001', userId: '10001', userName: '老板小明', goodsName: '春服护航 1小时', goodsCover: '/goods-1.png', amount: '38.00', status: 'finished', createdAt: '2025-03-04 10:20' },
+  { orderNo: 'ORD202503050002', userId: '10003', userName: '氪金玩家', goodsName: '跑刀代打', goodsCover: '/goods-2.png', amount: '25.00', status: 'ongoing', createdAt: '2025-03-05 09:15' },
+  { orderNo: 'ORD202503040003', userId: '10005', userName: '新手老板', goodsName: '33 上分', goodsCover: '/goods-1.png', amount: '88.00', status: 'pending_accept', createdAt: '2025-03-04 18:30' },
+  { orderNo: 'ORD202503040004', userId: '10001', userName: '老板小明', goodsName: '代肝周常', goodsCover: '/goods-2.png', amount: '50.00', status: 'pending_confirm', createdAt: '2025-03-04 14:00' },
+  { orderNo: 'ORD202503030005', userId: '10003', userName: '氪金玩家', goodsName: '春服护航 3小时', goodsCover: '/goods-1.png', amount: '98.00', status: 'unassigned', createdAt: '2025-03-03 16:22' }
 ])
+
+const detailOrder = ref<OrderRow | null>(null)
+
+function openDetail(o: OrderRow) {
+  detailOrder.value = o
+}
 </script>
 
 <style scoped>
@@ -190,5 +225,86 @@ const mockOrders = ref([
 
 .btn-link:hover {
   text-decoration: underline;
+}
+
+.col-goods {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.goods-thumb {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+}
+
+.modal-mask {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.detail-modal {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  width: 100%;
+  max-width: 360px;
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.15);
+}
+
+.detail-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #0f172a;
+  margin-bottom: 16px;
+}
+
+.detail-cover {
+  width: 100%;
+  max-height: 200px;
+  object-fit: contain;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  margin-bottom: 12px;
+}
+
+.detail-body {
+  margin-bottom: 16px;
+}
+
+.detail-row {
+  font-size: 13px;
+  color: #374151;
+  margin-bottom: 8px;
+}
+
+.detail-label {
+  display: inline-block;
+  width: 72px;
+  color: #64748b;
+}
+
+.detail-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn-secondary {
+  padding: 8px 16px;
+  font-size: 13px;
+  color: #374151;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  cursor: pointer;
 }
 </style>

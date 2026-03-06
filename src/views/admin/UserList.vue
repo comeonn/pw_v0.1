@@ -33,35 +33,60 @@
         设置保护期时间
       </button>
     </div>
+    <!-- 保护期时间弹窗：按银牌/金牌/王牌分别设置 -->
     <div v-if="showProtectionModal" class="modal-mask" @click.self="showProtectionModal = false">
-      <div class="modal">
+      <div class="modal modal-wide">
         <h3 class="modal-title">设置保护期时间</h3>
         <p class="modal-desc">
-          老板下单后，<strong>金牌打手</strong>可立即在接单大厅看到该单；<strong>普通打手</strong>需过了保护期时间后才能看到。
+          老板下单后，级别更高的打手可更早看到新单。可为<strong>银牌、金牌、王牌</strong>分别设置保护期，过了对应保护期后该级别打手才能在接单大厅看到该单。
         </p>
-        <div class="form-row">
-          <div class="form-group flex">
-            <label class="form-label">保护期数值</label>
-            <input
-              v-model.number="protectionValue"
-              type="number"
-              min="0"
-              class="form-input"
-              placeholder="例如 30"
-            />
-          </div>
-          <div class="form-group">
-            <label class="form-label">单位</label>
-            <select v-model="protectionUnit" class="form-select">
-              <option value="second">秒</option>
-              <option value="minute">分钟</option>
-              <option value="hour">小时</option>
-            </select>
+        <div v-for="lev in workerLevels" :key="lev.id" class="protection-row">
+          <span class="protection-label">{{ lev.label }}打手</span>
+          <div class="form-row inline">
+            <div class="form-group flex">
+              <input
+                v-model.number="protectionByLevel[lev.id].value"
+                type="number"
+                min="0"
+                class="form-input"
+                placeholder="数值"
+              />
+            </div>
+            <div class="form-group">
+              <select v-model="protectionByLevel[lev.id].unit" class="form-select">
+                <option value="second">秒</option>
+                <option value="minute">分钟</option>
+                <option value="hour">小时</option>
+              </select>
+            </div>
           </div>
         </div>
         <div class="modal-actions">
           <button type="button" class="btn-secondary" @click="showProtectionModal = false">取消</button>
           <button type="button" class="btn-primary" @click="saveProtection">确定</button>
+        </div>
+      </div>
+    </div>
+    <!-- 设置打手级别弹窗 -->
+    <div v-if="showLevelModal" class="modal-mask" @click.self="closeLevelModal">
+      <div class="modal">
+        <h3 class="modal-title">设置打手级别</h3>
+        <p class="modal-desc">当前打手：{{ editingWorker?.nickname }}</p>
+        <div class="level-options">
+          <button
+            v-for="lev in workerLevels"
+            :key="lev.id"
+            type="button"
+            class="level-btn"
+            :class="{ active: pendingLevel === lev.id }"
+            @click="setWorkerLevel(lev.id)"
+          >
+            {{ lev.label }}打手
+          </button>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" @click="closeLevelModal">取消</button>
+          <button type="button" class="btn-primary" @click="confirmLevel">确定</button>
         </div>
       </div>
     </div>
@@ -73,6 +98,7 @@
               <th>用户 ID</th>
               <th>昵称</th>
               <th>角色</th>
+              <th v-if="role === 'worker'">打手级别</th>
               <th>注册时间</th>
               <th>状态</th>
               <th>操作</th>
@@ -83,11 +109,17 @@
               <td>{{ u.id }}</td>
               <td>{{ u.nickname }}</td>
               <td>{{ u.role === 'boss' ? '老板' : '打手' }}</td>
+              <td v-if="role === 'worker'">
+                <span v-if="u.role === 'worker'" :class="['level-tag', (u as WorkerUser).level]">
+                  {{ levelLabel((u as WorkerUser).level) }}
+                </span>
+              </td>
               <td>{{ u.createdAt }}</td>
               <td>
                 <span :class="['status-tag', u.status]">{{ u.status === 'normal' ? '正常' : '已封禁' }}</span>
               </td>
               <td>
+                <button v-if="role === 'worker' && u.role === 'worker'" type="button" class="btn-link" @click="openLevelModal(u as WorkerUser)">设置级别</button>
                 <button type="button" class="btn-link">{{ u.status === 'normal' ? '封禁' : '解封' }}</button>
                 <button type="button" class="btn-link">详情</button>
               </td>
@@ -100,28 +132,90 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, reactive } from 'vue'
+
+type WorkerLevelId = 'silver' | 'gold' | 'ace'
+type ProtectionUnit = 'second' | 'minute' | 'hour'
+
+interface BossUser {
+  id: string
+  nickname: string
+  role: 'boss'
+  createdAt: string
+  status: 'normal' | 'banned'
+}
+
+interface WorkerUser {
+  id: string
+  nickname: string
+  role: 'worker'
+  level: WorkerLevelId
+  createdAt: string
+  status: 'normal' | 'banned'
+}
+
+const workerLevels = [
+  { id: 'silver' as const, label: '银牌' },
+  { id: 'gold' as const, label: '金牌' },
+  { id: 'ace' as const, label: '王牌' }
+]
 
 const role = ref<'boss' | 'worker'>('boss')
 const keyword = ref('')
 const showProtectionModal = ref(false)
-const protectionValue = ref<number>(0)
-const protectionUnit = ref<'second' | 'minute' | 'hour'>('second')
+const protectionByLevel = reactive<Record<WorkerLevelId, { value: number; unit: ProtectionUnit }>>({
+  silver: { value: 30, unit: 'minute' },
+  gold: { value: 10, unit: 'minute' },
+  ace: { value: 0, unit: 'second' }
+})
 
-const mockUsersAll = ref([
-  { id: '10001', nickname: '老板小明', role: 'boss' as const, createdAt: '2025-02-20 14:32', status: 'normal' as const },
-  { id: '10002', nickname: '打手阿强', role: 'worker' as const, createdAt: '2025-02-21 09:15', status: 'normal' as const },
-  { id: '10003', nickname: '氪金玩家', role: 'boss' as const, createdAt: '2025-02-22 18:00', status: 'normal' as const },
-  { id: '10004', nickname: '接单达人', role: 'worker' as const, createdAt: '2025-02-23 11:20', status: 'banned' as const },
-  { id: '10005', nickname: '新手老板', role: 'boss' as const, createdAt: '2025-03-01 08:45', status: 'normal' as const }
+const showLevelModal = ref(false)
+const editingWorker = ref<WorkerUser | null>(null)
+const pendingLevel = ref<WorkerLevelId | null>(null)
+
+const mockUsersAll = ref<(BossUser | WorkerUser)[]>([
+  { id: '10001', nickname: '老板小明', role: 'boss', createdAt: '2025-02-20 14:32', status: 'normal' },
+  { id: '10002', nickname: '打手阿强', role: 'worker', level: 'gold', createdAt: '2025-02-21 09:15', status: 'normal' },
+  { id: '10003', nickname: '氪金玩家', role: 'boss', createdAt: '2025-02-22 18:00', status: 'normal' },
+  { id: '10004', nickname: '接单达人', role: 'worker', level: 'silver', createdAt: '2025-02-23 11:20', status: 'banned' },
+  { id: '10005', nickname: '新手老板', role: 'boss', createdAt: '2025-03-01 08:45', status: 'normal' },
+  { id: '10006', nickname: '王牌打手', role: 'worker', level: 'ace', createdAt: '2025-03-02 10:00', status: 'normal' }
 ])
 
 const mockUsers = computed(() =>
   mockUsersAll.value.filter((u) => u.role === role.value)
 )
 
+function levelLabel(level: WorkerLevelId) {
+  return workerLevels.find((l) => l.id === level)?.label ?? level
+}
+
+function openLevelModal(u: WorkerUser) {
+  editingWorker.value = u
+  pendingLevel.value = u.level
+  showLevelModal.value = true
+}
+
+function closeLevelModal() {
+  showLevelModal.value = false
+  editingWorker.value = null
+  pendingLevel.value = null
+}
+
+function setWorkerLevel(lev: WorkerLevelId) {
+  pendingLevel.value = lev
+}
+
+function confirmLevel() {
+  if (editingWorker.value && pendingLevel.value !== null) {
+    const user = mockUsersAll.value.find((u) => u.role === 'worker' && u.id === editingWorker.value!.id) as WorkerUser
+    if (user) user.level = pendingLevel.value
+  }
+  closeLevelModal()
+}
+
 function saveProtection() {
-  // TODO: 调用后端接口保存保护期（数值 + 单位：秒/分钟/小时），接单大厅按此延迟对普通打手展示新单
+  // TODO: 调用后端接口保存各级别保护期（protectionByLevel），接单大厅按打手级别与对应保护期延迟展示新单
   showProtectionModal.value = false
 }
 </script>
@@ -217,6 +311,74 @@ function saveProtection() {
   background: #fff;
   border-radius: 8px;
   border: 1px solid #e5e7eb;
+}
+
+.modal-wide {
+  max-width: 480px;
+}
+
+.protection-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.protection-label {
+  flex: 0 0 72px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+}
+
+.form-row.inline {
+  flex: 1;
+  margin-bottom: 0;
+  min-width: 0;
+}
+
+.level-options {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.level-btn {
+  flex: 1;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: #64748b;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.level-btn.active {
+  color: #fff;
+  background: #1e293b;
+  border-color: #1e293b;
+}
+
+.level-tag {
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.level-tag.silver {
+  background: #e2e8f0;
+  color: #475569;
+}
+
+.level-tag.gold {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.level-tag.ace {
+  background: #fce7f3;
+  color: #9d174d;
 }
 
 .modal-title {

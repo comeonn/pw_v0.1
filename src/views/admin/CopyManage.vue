@@ -5,6 +5,25 @@
     </div>
     <section class="panel">
       <div class="copy-item">
+        <label class="copy-label">首页海报</label>
+        <div class="img-upload">
+          <input
+            ref="homePosterInput"
+            type="file"
+            accept="image/*"
+            class="img-file-input"
+            @change="(e) => onPosterChange(e, 'home')"
+          />
+          <div v-if="homePosterUrl" class="img-preview">
+            <img :src="homePosterUrl" alt="首页海报" class="img-preview-img" />
+            <button type="button" class="wechat-remove" @click="removePoster('home')">移除</button>
+          </div>
+          <div v-else class="wechat-placeholder" @click="triggerPoster('home')">
+            <span class="wechat-placeholder-text">点击上传首页海报</span>
+          </div>
+        </div>
+      </div>
+      <div class="copy-item">
         <label class="copy-label">首页公告</label>
         <textarea
           v-model="notice"
@@ -41,8 +60,46 @@
           </div>
         </div>
       </div>
+      <div class="copy-item">
+        <label class="copy-label">热门推荐海报</label>
+        <div class="img-upload">
+          <input
+            ref="hotPosterInput"
+            type="file"
+            accept="image/*"
+            class="img-file-input"
+            @change="(e) => onPosterChange(e, 'hot')"
+          />
+          <div v-if="hotPosterUrl" class="img-preview">
+            <img :src="hotPosterUrl" alt="热门推荐海报" class="img-preview-img" />
+            <button type="button" class="wechat-remove" @click="removePoster('hot')">移除</button>
+          </div>
+          <div v-else class="wechat-placeholder" @click="triggerPoster('hot')">
+            <span class="wechat-placeholder-text">点击上传热门推荐海报</span>
+          </div>
+        </div>
+      </div>
+      <div class="copy-item">
+        <label class="copy-label">抽奖转盘海报</label>
+        <div class="img-upload">
+          <input
+            ref="lotteryPosterInput"
+            type="file"
+            accept="image/*"
+            class="img-file-input"
+            @change="(e) => onPosterChange(e, 'lottery')"
+          />
+          <div v-if="lotteryPosterUrl" class="img-preview">
+            <img :src="lotteryPosterUrl" alt="抽奖转盘海报" class="img-preview-img" />
+            <button type="button" class="wechat-remove" @click="removePoster('lottery')">移除</button>
+          </div>
+          <div v-else class="wechat-placeholder" @click="triggerPoster('lottery')">
+            <span class="wechat-placeholder-text">点击上传抽奖转盘海报</span>
+          </div>
+        </div>
+      </div>
       <div class="copy-actions">
-        <button type="button" class="btn-primary">保存</button>
+        <button type="button" class="btn-primary" @click="handleSave">保存</button>
       </div>
     </section>
   </div>
@@ -56,6 +113,15 @@ const notice = ref('如果打手服务不好联系客服免单!如果打手有�
 const wechatId = ref('game-helper-001')
 const wechatImageUrl = ref<string>('')
 const wechatFileInput = ref<HTMLInputElement | null>(null)
+const homePosterInput = ref<HTMLInputElement | null>(null)
+const hotPosterInput = ref<HTMLInputElement | null>(null)
+const lotteryPosterInput = ref<HTMLInputElement | null>(null)
+
+type PosterKey = 'home' | 'hot' | 'lottery'
+
+const homePosterUrl = ref(localStorage.getItem('home_poster') ?? '')
+const hotPosterUrl = ref(localStorage.getItem('hot_poster') ?? '')
+const lotteryPosterUrl = ref(localStorage.getItem('lottery_poster') ?? '')
 
 function triggerWechatUpload() {
   wechatFileInput.value?.click()
@@ -73,6 +139,46 @@ function onWechatImageChange(e: Event) {
 function removeWechatImage() {
   if (wechatImageUrl.value) URL.revokeObjectURL(wechatImageUrl.value)
   wechatImageUrl.value = ''
+}
+
+function triggerPoster(key: PosterKey) {
+  if (key === 'home') homePosterInput.value?.click()
+  if (key === 'hot') hotPosterInput.value?.click()
+  if (key === 'lottery') lotteryPosterInput.value?.click()
+}
+
+function readAsDataUrl(file: File) {
+  return new Promise<string>((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => resolve(String(reader.result ?? ''))
+    reader.onerror = () => reject(new Error('read failed'))
+    reader.readAsDataURL(file)
+  })
+}
+
+async function onPosterChange(e: Event, key: PosterKey) {
+  const target = e.target as HTMLInputElement
+  const file = target.files?.[0]
+  if (file && file.type.startsWith('image/')) {
+    const url = await readAsDataUrl(file)
+    if (key === 'home') homePosterUrl.value = url
+    if (key === 'hot') hotPosterUrl.value = url
+    if (key === 'lottery') lotteryPosterUrl.value = url
+  }
+  target.value = ''
+}
+
+function removePoster(key: PosterKey) {
+  if (key === 'home') homePosterUrl.value = ''
+  if (key === 'hot') hotPosterUrl.value = ''
+  if (key === 'lottery') lotteryPosterUrl.value = ''
+}
+
+function handleSave() {
+  localStorage.setItem('home_poster', homePosterUrl.value ?? '')
+  localStorage.setItem('hot_poster', hotPosterUrl.value ?? '')
+  localStorage.setItem('lottery_poster', lotteryPosterUrl.value ?? '')
+  alert('已保存（本地示例），后续可对接后端')
 }
 </script>
 
@@ -182,6 +288,32 @@ function removeWechatImage() {
   width: 160px;
   height: 160px;
   object-fit: contain;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+}
+
+.img-upload {
+  position: relative;
+}
+
+.img-file-input {
+  position: absolute;
+  width: 0;
+  height: 0;
+  opacity: 0;
+}
+
+.img-preview {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.img-preview-img {
+  width: 240px;
+  height: 120px;
+  object-fit: cover;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
 }
