@@ -15,11 +15,6 @@
             <span class="name">{{ profile.name }}</span>
             <span class="id">ID: {{ profile.id }}</span>
           </div>
-          <div class="stats-row">
-            <span>本月收入 ￥{{ profile.monthIncome.toFixed(1) }}</span>
-            <span>完单 {{ profile.totalOrders }}</span>
-            <span>评分 {{ profile.rating.toFixed(1) }}</span>
-          </div>
         </div>
       </div>
     </header>
@@ -41,12 +36,6 @@
           <div class="order-main">
             <div class="order-title-row">
               <span class="order-title">{{ order.title }}</span>
-              <span
-                class="order-level"
-                :class="{ gold: order.levelTag === '金牌订单' }"
-              >
-                {{ order.levelTag }}
-              </span>
             </div>
             <div class="order-mode">{{ order.mode }}</div>
             <div class="order-meta">
@@ -223,15 +212,6 @@ function go(path: string) {
   color: #cbd5f5;
 }
 
-.stats-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  font-size: 11px;
-  color: #e5e7eb;
-  opacity: 0.9;
-}
-
 .content {
   padding: 10px 10px 12px;
 }
@@ -305,19 +285,6 @@ function go(path: string) {
   font-size: 13px;
   font-weight: 700;
   color: #f9fafb;
-}
-
-.order-level {
-  font-size: 10px;
-  padding: 2px 6px;
-  border-radius: 999px;
-  background: rgba(148, 163, 184, 0.2);
-  color: #e5e7eb;
-}
-
-.order-level.gold {
-  background: rgba(250, 204, 21, 0.2);
-  color: #facc15;
 }
 
 .order-mode {

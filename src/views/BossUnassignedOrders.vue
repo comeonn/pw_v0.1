@@ -68,6 +68,19 @@
           </div>
           <div class="dispatch-form">
             <label class="dispatch-label">
+              游戏类型
+              <div class="dispatch-radio-row">
+                <label class="dispatch-radio">
+                  <input v-model="formGameType" type="radio" value="手游" />
+                  <span>手游</span>
+                </label>
+                <label class="dispatch-radio">
+                  <input v-model="formGameType" type="radio" value="端游" />
+                  <span>端游</span>
+                </label>
+              </div>
+            </label>
+            <label class="dispatch-label">
               手机号
               <input
                 v-model="formPhone"
@@ -172,6 +185,7 @@ const unassignedOrders = ref<UnassignedOrder[]>([
 const showDispatchModal = ref(false)
 const currentOrder = ref<UnassignedOrder | null>(null)
 
+const formGameType = ref<'手游' | '端游'>('手游')
 const formPhone = ref('')
 const formGameId = ref('')
 const formName = ref('')
@@ -184,6 +198,7 @@ function changeTab(id: TabId) {
 
 function openDispatch(order: UnassignedOrder) {
   currentOrder.value = order
+  formGameType.value = '手游'
   formPhone.value = ''
   formGameId.value = ''
   formName.value = ''
@@ -427,6 +442,26 @@ function submitDispatch() {
 
 .dispatch-input.textarea {
   resize: vertical;
+}
+
+.dispatch-radio-row {
+  display: flex;
+  gap: 16px;
+  margin-top: 4px;
+}
+
+.dispatch-radio {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #374151;
+  cursor: pointer;
+}
+
+.dispatch-radio input {
+  width: 16px;
+  height: 16px;
 }
 
 .dispatch-actions {

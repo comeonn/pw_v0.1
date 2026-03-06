@@ -23,7 +23,7 @@
 
       <!-- 我的订单模块 -->
       <section class="order-card">
-        <div class="order-head">
+        <div class="order-head" @click="goBossOrders('toDispatch')">
           <span class="order-title">我的订单</span>
           <span class="order-more">查看全部 ›</span>
         </div>
@@ -265,6 +265,7 @@ function goBossOrders(tab: BossTabId) {
   align-items: center;
   justify-content: space-between;
   margin-bottom: 10px;
+  cursor: pointer;
 }
 
 .order-title {
