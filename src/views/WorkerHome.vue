@@ -29,6 +29,7 @@
           v-for="order in availableOrders"
           :key="order.id"
           class="order-card"
+          @click="openDetail(order)"
         >
           <div class="order-thumb">
             <img :src="goodsCoverMap[order.goodsId]" :alt="order.title" />
@@ -39,7 +40,7 @@
             </div>
             <div class="order-mode">{{ order.mode }}</div>
             <div class="order-meta">
-              <span class="price-worker"> ￥{{ order.workerPrice }}</span>
+              <span class="price-worker">价格 ￥{{ order.workerPrice }}</span>
             </div>
             <div class="order-footer">
               <span class="time-light">{{ order.createdAt }}</span>
@@ -49,11 +50,129 @@
             </div>
           </div>
           <div class="order-actions">
-            <button class="btn-primary" type="button">接单</button>
+            <button
+              class="btn-primary"
+              type="button"
+              @click.stop="openAccept(order)"
+            >
+              接单
+            </button>
           </div>
         </article>
       </section>
     </main>
+
+    <Teleport to="body">
+      <div
+        v-if="detailOrder"
+        class="detail-mask"
+        @click.self="closeDetail"
+      >
+        <div class="detail-modal">
+          <div class="detail-title">订单详情</div>
+          <div class="detail-body">
+            <div class="detail-row">
+              <span class="label">订单号</span>
+              <span class="value">{{ detailOrder.id }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">商品标题</span>
+              <span class="value">{{ detailOrder.title }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">模式类型</span>
+              <span class="value">{{ detailOrder.mode }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">订单等级</span>
+              <span class="value">{{ detailOrder.levelTag }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">价格</span>
+              <span class="value highlight">￥{{ detailOrder.workerPrice }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">预期用时</span>
+              <span class="value">{{ detailOrder.expectedTime }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">发布时间</span>
+              <span class="value">{{ detailOrder.createdAt }}</span>
+            </div>
+            <div class="detail-row" v-if="detailOrder.gameId">
+              <span class="label">游戏 ID</span>
+              <span class="value">{{ detailOrder.gameId }}</span>
+            </div>
+            <div class="detail-row" v-if="detailOrder.numericId">
+              <span class="label">数字 ID</span>
+              <span class="value">{{ detailOrder.numericId }}</span>
+            </div>
+            <div class="detail-row" v-if="detailOrder.bossNote">
+              <span class="label">老板备注</span>
+              <span class="value remark">{{ detailOrder.bossNote }}</span>
+            </div>
+          </div>
+          <div class="detail-actions">
+            <button type="button" class="detail-btn" @click="closeDetail">关闭</button>
+          </div>
+        </div>
+      </div>
+
+      <div
+        v-if="acceptOrder"
+        class="detail-mask"
+        @click.self="closeAccept"
+      >
+        <div class="detail-modal">
+          <div class="detail-title">确认接单并填写信息</div>
+          <div class="detail-body">
+            <div class="detail-row">
+              <span class="label">订单号</span>
+              <span class="value">{{ acceptOrder.id }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">标题</span>
+              <span class="value">{{ acceptOrder.title }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">价格</span>
+              <span class="value highlight">￥{{ acceptOrder.workerPrice }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">我的游戏 ID</span>
+              <input
+                v-model="formWorkerGameId"
+                class="detail-input"
+                placeholder="请输入你在游戏里的 ID / 昵称"
+              />
+            </div>
+            <div class="detail-row">
+              <span class="label">预计上号</span>
+              <input
+                v-model="formStartTime"
+                class="detail-input"
+                placeholder="例：10 分钟内 / 晚上 8 点"
+              />
+            </div>
+            <div class="detail-row">
+              <span class="label">接单备注</span>
+              <textarea
+                v-model="formWorkerRemark"
+                class="detail-input textarea"
+                rows="3"
+                placeholder="可填写你的玩法特点、语音情况、注意事项等"
+              />
+            </div>
+          </div>
+          <div class="detail-actions">
+            <button type="button" class="detail-btn" @click="closeAccept">取消</button>
+            <button type="button" class="detail-btn primary" @click="submitAccept">
+              确认接单
+            </button>
+          </div>
+        </div>
+      </div>
+    </Teleport>
 
     <nav class="worker-nav">
       <button
@@ -85,7 +204,8 @@
 </template>
 
 <script setup lang="ts">
-import { MOCK_AVAILABLE_ORDERS, MOCK_WORKER_PROFILE } from '../mock/worker'
+import { ref } from 'vue'
+import { MOCK_AVAILABLE_ORDERS, MOCK_WORKER_PROFILE, type WorkerOrder } from '../mock/worker'
 import { GOODS } from '../mock/goods'
 import { useRouter } from 'vue-router'
 
@@ -93,6 +213,12 @@ const router = useRouter()
 
 const profile = MOCK_WORKER_PROFILE
 const availableOrders = MOCK_AVAILABLE_ORDERS
+
+const detailOrder = ref<WorkerOrder | null>(null)
+const acceptOrder = ref<WorkerOrder | null>(null)
+const formStartTime = ref('')
+const formWorkerGameId = ref('')
+const formWorkerRemark = ref('')
 
 const goodsCoverMap: Record<number, string> = GOODS.reduce(
   (map, g) => {
@@ -104,6 +230,40 @@ const goodsCoverMap: Record<number, string> = GOODS.reduce(
 
 function go(path: string) {
   router.push(path)
+}
+
+function openDetail(order: WorkerOrder) {
+  detailOrder.value = order
+}
+
+function closeDetail() {
+  detailOrder.value = null
+}
+
+function openAccept(order: WorkerOrder) {
+  acceptOrder.value = order
+  formStartTime.value = ''
+  formWorkerGameId.value = ''
+  formWorkerRemark.value = ''
+}
+
+function closeAccept() {
+  acceptOrder.value = null
+}
+
+function submitAccept() {
+  if (!formWorkerGameId.value) {
+    alert('请填写你的游戏 ID')
+    return
+  }
+  if (!formStartTime.value) {
+    alert('请填写预计上号时间')
+    return
+  }
+  // TODO: 调用后端接口完成接单，并保存打手备注信息
+  alert('已提交接单信息（示例），后续对接后端接口生效')
+  acceptOrder.value = null
+  router.push('/worker/orders')
 }
 </script>
 
@@ -347,6 +507,106 @@ function go(path: string) {
   color: #022c22;
   font-weight: 700;
   width: 100%;
+}
+
+.detail-mask {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.detail-modal {
+  width: 100%;
+  max-width: 360px;
+  background: #020617;
+  border-radius: 16px;
+  padding: 16px 16px 12px;
+  box-shadow:
+    0 18px 40px rgba(0, 0, 0, 0.85),
+    0 0 0 1px rgba(31, 41, 55, 0.9);
+  color: #e5e7eb;
+}
+
+.detail-title {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.detail-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.detail-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.detail-row .label {
+  flex: 0 0 68px;
+  color: #9ca3af;
+}
+
+.detail-row .value {
+  flex: 1;
+  color: #e5e7eb;
+}
+
+.detail-row .value.highlight {
+  color: #4ade80;
+  font-weight: 700;
+}
+
+.detail-row .value.remark {
+  white-space: pre-wrap;
+}
+
+.detail-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.detail-btn {
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1px solid #1f2937;
+  background: #020617;
+  color: #e5e7eb;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.detail-btn.primary {
+  border-color: transparent;
+  background: linear-gradient(135deg, #22c55e, #4ade80);
+  color: #022c22;
+  font-weight: 600;
+}
+
+.detail-input {
+  flex: 1;
+  padding: 6px 8px;
+  border-radius: 8px;
+  border: 1px solid #1f2937;
+  background: #020617;
+  color: #e5e7eb;
+  font-size: 12px;
+}
+
+.detail-input.textarea {
+  resize: vertical;
+  min-height: 60px;
 }
 
 .worker-nav {

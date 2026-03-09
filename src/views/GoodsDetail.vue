@@ -40,15 +40,89 @@
         <div class="footer-price-label">到手价</div>
         <div class="footer-price-value">￥{{ goods.price }}</div>
       </div>
-      <button class="buy-btn" type="button" @click="orderNow">
+      <button class="buy-btn" type="button" @click="openOrderForm">
         立即下单
       </button>
     </footer>
+
+    <Teleport to="body">
+      <div
+        v-if="showOrderForm && goods"
+        class="order-mask"
+        @click.self="closeOrderForm"
+      >
+        <div class="order-modal">
+          <div class="order-title">填写下单信息</div>
+          <div class="order-sub">
+            商品：{{ goods.title }}（￥{{ goods.price }}）
+          </div>
+          <div class="order-form">
+            <label class="order-label">
+              游戏类型
+              <div class="order-radio-row">
+                <label class="order-radio">
+                  <input v-model="formGameType" type="radio" value="手游" />
+                  <span>手游</span>
+                </label>
+                <label class="order-radio">
+                  <input v-model="formGameType" type="radio" value="端游" />
+                  <span>端游</span>
+                </label>
+              </div>
+            </label>
+            <label class="order-label">
+              手机号
+              <input
+                v-model="formPhone"
+                type="tel"
+                class="order-input"
+                placeholder="请输入联系手机号"
+              />
+            </label>
+            <label class="order-label">
+              游戏 ID
+              <input
+                v-model="formGameId"
+                type="text"
+                class="order-input"
+                placeholder="请输入游戏内 ID / 昵称"
+              />
+            </label>
+            <label class="order-label">
+              姓名
+              <input
+                v-model="formName"
+                type="text"
+                class="order-input"
+                placeholder="请输入称呼，方便打手沟通"
+              />
+            </label>
+            <label class="order-label">
+              备注
+              <textarea
+                v-model="formRemark"
+                class="order-input textarea"
+                rows="3"
+                placeholder="可填写上号时间、特殊要求等"
+              />
+            </label>
+          </div>
+          <div class="order-actions">
+            <button type="button" class="order-btn secondary" @click="closeOrderForm">
+              取消
+            </button>
+            <button type="button" class="order-btn primary" @click="submitOrder">
+              确认下单
+            </button>
+          </div>
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getGoodsById } from '../mock/goods'
 
@@ -62,9 +136,35 @@ const goods = computed(() => {
   return getGoodsById(id)
 })
 
-function orderNow() {
-  // TODO: 后续接下单页/支付，这里先给个“回到我的订单/首页”的示意
-  router.push('/mine')
+const showOrderForm = ref(false)
+const formGameType = ref<'手游' | '端游'>('手游')
+const formPhone = ref('')
+const formGameId = ref('')
+const formName = ref('')
+const formRemark = ref('')
+
+function openOrderForm() {
+  showOrderForm.value = true
+  formGameType.value = '手游'
+  formPhone.value = ''
+  formGameId.value = ''
+  formName.value = ''
+  formRemark.value = ''
+}
+
+function closeOrderForm() {
+  showOrderForm.value = false
+}
+
+function submitOrder() {
+  if (!formPhone.value || !formGameId.value || !formName.value) {
+    alert('请填写手机号、游戏 ID 和姓名')
+    return
+  }
+  // TODO: 调用后端创建订单
+  alert('已提交下单信息（示例），后续对接后端接口生效')
+  showOrderForm.value = false
+  router.push({ name: 'BossUnassignedOrders', query: { tab: 'toDispatch' } })
 }
 </script>
 
@@ -246,6 +346,120 @@ function orderNow() {
 .empty-sub {
   font-size: 12px;
   color: #94a3b8;
+}
+
+.order-mask {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.order-modal {
+  width: 100%;
+  max-width: 360px;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 18px 16px 14px;
+  box-shadow:
+    0 18px 40px rgba(15, 23, 42, 0.15),
+    0 0 0 1px rgba(15, 23, 42, 0.04);
+}
+
+.order-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 4px;
+}
+
+.order-sub {
+  font-size: 12px;
+  color: #64748b;
+  margin-bottom: 10px;
+}
+
+.order-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.order-label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  color: #4b5563;
+}
+
+.order-input {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  font-size: 13px;
+  box-sizing: border-box;
+}
+
+.order-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.1);
+}
+
+.order-input.textarea {
+  resize: vertical;
+}
+
+.order-radio-row {
+  display: flex;
+  gap: 16px;
+  margin-top: 4px;
+}
+
+.order-radio {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #374151;
+  cursor: pointer;
+}
+
+.order-radio input {
+  width: 16px;
+  height: 16px;
+}
+
+.order-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.order-btn {
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.order-btn.secondary {
+  background: #ffffff;
+  border-color: #e5e7eb;
+  color: #4b5563;
+}
+
+.order-btn.primary {
+  background: linear-gradient(135deg, #ff4d4f, #ff7a45);
+  color: #ffffff;
 }
 </style>
 

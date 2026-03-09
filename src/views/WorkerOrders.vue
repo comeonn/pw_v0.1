@@ -25,6 +25,7 @@
           v-for="order in filteredOrders"
           :key="order.id"
           class="order-card"
+          @click="openDetail(order)"
         >
           <div class="row-top">
             <span class="order-id">{{ order.id }}</span>
@@ -37,12 +38,69 @@
             <div class="mode">{{ order.mode }}</div>
           </div>
           <div class="row-bottom">
-            <span class="price">打手价 ￥{{ order.workerPrice }}</span>
+            <span class="price">价格 ￥{{ order.workerPrice }}</span>
             <span class="time">{{ order.createdAt }}</span>
           </div>
         </article>
       </section>
     </main>
+
+    <Teleport to="body">
+      <div
+        v-if="detailOrder"
+        class="detail-mask"
+        @click.self="closeDetail"
+      >
+        <div class="detail-modal">
+          <div class="detail-title">订单详情</div>
+          <div class="detail-body">
+            <div class="detail-row">
+              <span class="label">订单号</span>
+              <span class="value">{{ detailOrder.id }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">商品标题</span>
+              <span class="value">{{ detailOrder.title }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">模式类型</span>
+              <span class="value">{{ detailOrder.mode }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">订单等级</span>
+              <span class="value">{{ detailOrder.levelTag }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">价格</span>
+              <span class="value highlight">￥{{ detailOrder.workerPrice }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">预期用时</span>
+              <span class="value">{{ detailOrder.expectedTime }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">下单时间</span>
+              <span class="value">{{ detailOrder.createdAt }}</span>
+            </div>
+            <div class="detail-row" v-if="detailOrder.gameId">
+              <span class="label">游戏 ID</span>
+              <span class="value">{{ detailOrder.gameId }}</span>
+            </div>
+            <div class="detail-row" v-if="detailOrder.numericId">
+              <span class="label">数字 ID</span>
+              <span class="value">{{ detailOrder.numericId }}</span>
+            </div>
+            <div class="detail-row" v-if="detailOrder.bossNote">
+              <span class="label">老板备注</span>
+              <span class="value remark">{{ detailOrder.bossNote }}</span>
+            </div>
+          </div>
+          <div class="detail-actions">
+            <button type="button" class="detail-btn" @click="closeDetail">我知道了</button>
+          </div>
+        </div>
+      </div>
+    </Teleport>
 
     <nav class="worker-nav">
       <button class="worker-nav-item" type="button" @click="go('/worker/home')">
@@ -84,6 +142,8 @@ const filteredOrders = computed(() => {
   return MOCK_MY_ORDERS.filter((o) => o.status === activeTab.value)
 })
 
+const detailOrder = ref<WorkerOrder | null>(null)
+
 function statusText(status: WorkerOrder['status']) {
   switch (status) {
     case 'waiting':
@@ -99,6 +159,14 @@ function statusText(status: WorkerOrder['status']) {
 
 function go(path: string) {
   router.push(path)
+}
+
+function openDetail(order: WorkerOrder) {
+  detailOrder.value = order
+}
+
+function closeDetail() {
+  detailOrder.value = null
 }
 </script>
 
@@ -267,6 +335,82 @@ function go(path: string) {
 
 .time {
   color: #6b7280;
+}
+
+.detail-mask {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.detail-modal {
+  width: 100%;
+  max-width: 360px;
+  background: #020617;
+  border-radius: 16px;
+  padding: 16px 16px 12px;
+  box-shadow:
+    0 18px 40px rgba(0, 0, 0, 0.85),
+    0 0 0 1px rgba(31, 41, 55, 0.9);
+  color: #e5e7eb;
+}
+
+.detail-title {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.detail-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.detail-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.detail-row .label {
+  flex: 0 0 68px;
+  color: #9ca3af;
+}
+
+.detail-row .value {
+  flex: 1;
+  color: #e5e7eb;
+}
+
+.detail-row .value.highlight {
+  color: #4ade80;
+  font-weight: 700;
+}
+
+.detail-row .value.remark {
+  white-space: pre-wrap;
+}
+
+.detail-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.detail-btn {
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1px solid #1f2937;
+  background: #020617;
+  color: #e5e7eb;
+  font-size: 13px;
 }
 
 .worker-nav {

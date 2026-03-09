@@ -50,6 +50,14 @@
               <td>{{ o.createdAt }}</td>
               <td>
                 <button type="button" class="btn-link" @click="openDetail(o)">详情</button>
+                <button
+                  v-if="o.status !== 'finished' && o.status !== 'cancelled'"
+                  type="button"
+                  class="btn-link"
+                  @click="changeToFinished(o)"
+                >
+                  改为已结束
+                </button>
               </td>
             </tr>
           </tbody>
@@ -86,7 +94,7 @@ const orderStatusText: Record<string, string> = {
   pending_accept: '待接单',
   ongoing: '进行中',
   pending_confirm: '待确认',
-  finished: '已完成',
+  finished: '已结束',
   cancelled: '已取消',
   unassigned: '未派单'
 }
@@ -114,6 +122,13 @@ const detailOrder = ref<OrderRow | null>(null)
 
 function openDetail(o: OrderRow) {
   detailOrder.value = o
+}
+
+function changeToFinished(row: OrderRow) {
+  const target = mockOrders.value.find((item) => item.orderNo === row.orderNo)
+  if (target) {
+    target.status = 'finished'
+  }
 }
 </script>
 

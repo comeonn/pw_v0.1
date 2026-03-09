@@ -23,6 +23,8 @@ export interface WorkerOrder {
   expectedTime: string
   createdAt: string
   status: WorkerOrderStatus
+  gameId?: string
+  numericId?: string
   bossNote?: string
 }
 
@@ -63,6 +65,8 @@ export const MOCK_AVAILABLE_ORDERS: WorkerOrder[] = [
     expectedTime: '预计 40 分钟',
     createdAt: '2026-03-03 14:20',
     status: 'waiting',
+    gameId: '春服-小阿怪#5566',
+    numericId: '88990011',
     bossNote: '优先带上语音，有需要可多局续费'
   },
   {
@@ -75,7 +79,9 @@ export const MOCK_AVAILABLE_ORDERS: WorkerOrder[] = [
     workerPrice: 38.0,
     expectedTime: '预计 30 分钟',
     createdAt: '2026-03-03 13:45',
-    status: 'waiting'
+    status: 'waiting',
+    gameId: '春服-小明#2333',
+    numericId: '77001234'
   },
   {
     id: 'A20260303003',
@@ -87,7 +93,9 @@ export const MOCK_AVAILABLE_ORDERS: WorkerOrder[] = [
     workerPrice: 90.0,
     expectedTime: '预计 50 分钟',
     createdAt: '2026-03-03 13:10',
-    status: 'waiting'
+    status: 'waiting',
+    gameId: '春服-老玩家#9090',
+    numericId: '66554433'
   }
 ]
 
@@ -102,7 +110,10 @@ export const MOCK_MY_ORDERS: WorkerOrder[] = [
     workerPrice: 110.0,
     expectedTime: '进行中',
     createdAt: '2026-03-02 21:30',
-    status: 'ongoing'
+    status: 'ongoing',
+    gameId: '春服-上分老板#1001',
+    numericId: '11223344',
+    bossNote: '开黑优先，帮看看天赋搭配'
   },
   {
     id: 'O20260302002',
@@ -114,7 +125,10 @@ export const MOCK_MY_ORDERS: WorkerOrder[] = [
     workerPrice: 130.0,
     expectedTime: '待老板确认',
     createdAt: '2026-03-02 20:10',
-    status: 'pendingConfirm'
+    status: 'pendingConfirm',
+    gameId: '春服-战术家#7788',
+    numericId: '55667788',
+    bossNote: '带走两局，注意节奏别太快'
   },
   {
     id: 'O20260301001',
@@ -126,7 +140,10 @@ export const MOCK_MY_ORDERS: WorkerOrder[] = [
     workerPrice: 95.0,
     expectedTime: '已完成',
     createdAt: '2026-03-01 19:05',
-    status: 'finished'
+    status: 'finished',
+    gameId: '春服-刀刀暴击#9999',
+    numericId: '99887766',
+    bossNote: '多刷几圈材料不急'
   }
 ]
 
