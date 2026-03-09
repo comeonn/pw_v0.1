@@ -55,10 +55,6 @@
           <div class="detail-title">订单详情</div>
           <div class="detail-body">
             <div class="detail-row">
-              <span class="label">订单号</span>
-              <span class="value">{{ detailOrder.id }}</span>
-            </div>
-            <div class="detail-row">
               <span class="label">商品标题</span>
               <span class="value">{{ detailOrder.title }}</span>
             </div>
@@ -67,16 +63,8 @@
               <span class="value">{{ detailOrder.mode }}</span>
             </div>
             <div class="detail-row">
-              <span class="label">订单等级</span>
-              <span class="value">{{ detailOrder.levelTag }}</span>
-            </div>
-            <div class="detail-row">
               <span class="label">价格</span>
               <span class="value highlight">￥{{ detailOrder.workerPrice }}</span>
-            </div>
-            <div class="detail-row">
-              <span class="label">预期用时</span>
-              <span class="value">{{ detailOrder.expectedTime }}</span>
             </div>
             <div class="detail-row">
               <span class="label">下单时间</span>
