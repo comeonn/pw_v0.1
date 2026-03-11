@@ -58,6 +58,10 @@
               <span class="label">商品标题</span>
               <span class="value">{{ detailOrder.title }}</span>
             </div>
+            <div class="detail-row" v-if="goodsDetailMap[detailOrder.goodsId]">
+              <span class="label">商品详情</span>
+              <span class="value remark">{{ goodsDetailMap[detailOrder.goodsId] }}</span>
+            </div>
             <div class="detail-row">
               <span class="label">模式类型</span>
               <span class="value">{{ detailOrder.mode }}</span>
@@ -66,9 +70,9 @@
               <span class="label">价格</span>
               <span class="value highlight">￥{{ detailOrder.workerPrice }}</span>
             </div>
-            <div class="detail-row">
-              <span class="label">下单时间</span>
-              <span class="value">{{ detailOrder.createdAt }}</span>
+            <div class="detail-row" v-if="detailOrder.phone">
+              <span class="label">手机号</span>
+              <span class="value">{{ detailOrder.phone }}</span>
             </div>
             <div class="detail-row" v-if="detailOrder.gameId">
               <span class="label">游戏 ID</span>
@@ -111,14 +115,15 @@
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { MOCK_MY_ORDERS, type WorkerOrder } from '../mock/worker'
+import { GOODS } from '../mock/goods'
 
 const router = useRouter()
 
 const tabs = [
   { id: 'all', label: '全部' },
-  { id: 'ongoing', label: '进行中' },
-  { id: 'pendingConfirm', label: '待确认' },
-  { id: 'finished', label: '已完成' }
+  { id: 'pending_close', label: '待结单' },
+  { id: 'closed', label: '已结单' },
+  { id: 'finished', label: '已结束' }
 ] as const
 
 type TabId = (typeof tabs)[number]['id']
@@ -132,16 +137,25 @@ const filteredOrders = computed(() => {
 
 const detailOrder = ref<WorkerOrder | null>(null)
 
+const goodsDetailMap: Record<number, string> = GOODS.reduce(
+  (map, g) => {
+    if (g.detail) map[g.id] = g.detail
+    else if (g.intro) map[g.id] = g.intro
+    return map
+  },
+  {} as Record<number, string>
+)
+
 function statusText(status: WorkerOrder['status']) {
   switch (status) {
     case 'waiting':
       return '待接单'
-    case 'ongoing':
-      return '进行中'
-    case 'pendingConfirm':
-      return '待老板确认'
+    case 'pending_close':
+      return '待结单'
+    case 'closed':
+      return '已结单'
     case 'finished':
-      return '已完成'
+      return '已结束'
   }
 }
 
@@ -282,19 +296,19 @@ function closeDetail() {
   background: #111827;
 }
 
-.status-tag.ongoing {
+.status-tag.pending_close {
   background: rgba(59, 130, 246, 0.18);
   color: #bfdbfe;
 }
 
-.status-tag.pendingConfirm {
-  background: rgba(250, 204, 21, 0.2);
-  color: #facc15;
+.status-tag.closed {
+  background: rgba(34, 197, 94, 0.2);
+  color: #bbf7d0;
 }
 
 .status-tag.finished {
-  background: rgba(34, 197, 94, 0.2);
-  color: #bbf7d0;
+  background: rgba(148, 163, 184, 0.25);
+  color: #94a3b8;
 }
 
 .row-main .title {

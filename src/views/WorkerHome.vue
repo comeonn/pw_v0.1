@@ -49,15 +49,6 @@
               </span>
             </div>
           </div>
-          <div class="order-actions">
-            <button
-              class="btn-primary"
-              type="button"
-              @click.stop="openAccept(order)"
-            >
-              接单
-            </button>
-          </div>
         </article>
       </section>
     </main>
@@ -75,6 +66,10 @@
               <span class="label">商品标题</span>
               <span class="value">{{ detailOrder.title }}</span>
             </div>
+            <div class="detail-row" v-if="goodsDetailMap[detailOrder.goodsId]">
+              <span class="label">商品详情</span>
+              <span class="value remark">{{ goodsDetailMap[detailOrder.goodsId] }}</span>
+            </div>
             <div class="detail-row">
               <span class="label">模式类型</span>
               <span class="value">{{ detailOrder.mode }}</span>
@@ -84,16 +79,12 @@
               <span class="value highlight">￥{{ detailOrder.workerPrice }}</span>
             </div>
             <div class="detail-row">
+              <span class="label">订单内容</span>
+              <span class="value">{{ detailOrder.expectedTime }}</span>
+            </div>
+            <div class="detail-row">
               <span class="label">发布时间</span>
               <span class="value">{{ detailOrder.createdAt }}</span>
-            </div>
-            <div class="detail-row" v-if="detailOrder.gameId">
-              <span class="label">游戏 ID</span>
-              <span class="value">{{ detailOrder.gameId }}</span>
-            </div>
-            <div class="detail-row" v-if="detailOrder.numericId">
-              <span class="label">数字 ID</span>
-              <span class="value">{{ detailOrder.numericId }}</span>
             </div>
             <div class="detail-row" v-if="detailOrder.bossNote">
               <span class="label">老板备注</span>
@@ -102,6 +93,9 @@
           </div>
           <div class="detail-actions">
             <button type="button" class="detail-btn" @click="closeDetail">关闭</button>
+            <button type="button" class="detail-btn primary" @click="acceptFromDetail">
+              接单
+            </button>
           </div>
         </div>
       </div>
@@ -212,6 +206,15 @@ const goodsCoverMap: Record<number, string> = GOODS.reduce(
   {} as Record<number, string>
 )
 
+const goodsDetailMap: Record<number, string> = GOODS.reduce(
+  (map, g) => {
+    if (g.detail) map[g.id] = g.detail
+    else if (g.intro) map[g.id] = g.intro
+    return map
+  },
+  {} as Record<number, string>
+)
+
 function go(path: string) {
   router.push(path)
 }
@@ -233,6 +236,13 @@ function openAccept(order: WorkerOrder) {
 
 function closeAccept() {
   acceptOrder.value = null
+}
+
+function acceptFromDetail() {
+  if (!detailOrder.value) return
+  const order = detailOrder.value
+  closeDetail()
+  openAccept(order)
 }
 
 function submitAccept() {

@@ -20,6 +20,10 @@
           <div class="goods-title">{{ goods.title }}</div>
         </div>
         <div class="intro">{{ goods.intro }}</div>
+        <div v-if="goods.detail" class="detail-block">
+          <div class="detail-title">商品详情介绍</div>
+          <div class="detail-content">{{ goods.detail }}</div>
+        </div>
 
         <div class="price-row">
           <span class="price">￥{{ goods.price }}</span>
@@ -54,24 +58,26 @@
         <div class="order-modal">
           <div class="order-title">填写下单信息</div>
           <div class="order-sub">
-            商品：{{ goods.title }}（￥{{ goods.price }}）
+            商品：{{ goods.title }}（<span class="required-mark">*</span>￥{{ goods.price }}）
           </div>
           <div class="order-form">
             <label class="order-label">
               游戏类型
               <div class="order-radio-row">
                 <label class="order-radio">
-                  <input v-model="formGameType" type="radio" value="手游" />
-                  <span>手游</span>
-                </label>
-                <label class="order-radio">
                   <input v-model="formGameType" type="radio" value="端游" />
                   <span>端游</span>
+                </label>
+                <label class="order-radio">
+                  <input v-model="formGameType" type="radio" value="手游" />
+                  <span>手游</span>
                 </label>
               </div>
             </label>
             <label class="order-label">
-              手机号
+              <div class="label-row">
+                手机号<span class="required-text">(必填)</span>
+              </div>
               <input
                 v-model="formPhone"
                 type="tel"
@@ -80,21 +86,22 @@
               />
             </label>
             <label class="order-label">
+              <div class="id-note">游戏ID和数字ID其中之一必填</div>
               游戏 ID
               <input
                 v-model="formGameId"
                 type="text"
                 class="order-input"
-                placeholder="请输入游戏内 ID / 昵称"
+                placeholder="请输入游戏内 ID"
               />
             </label>
             <label class="order-label">
-              姓名
+              数字 ID
               <input
-                v-model="formName"
+                v-model="formNumericId"
                 type="text"
                 class="order-input"
-                placeholder="请输入称呼，方便打手沟通"
+                placeholder="请输入数字 ID"
               />
             </label>
             <label class="order-label">
@@ -137,18 +144,18 @@ const goods = computed(() => {
 })
 
 const showOrderForm = ref(false)
-const formGameType = ref<'手游' | '端游'>('手游')
+const formGameType = ref<'手游' | '端游'>('端游')
 const formPhone = ref('')
 const formGameId = ref('')
-const formName = ref('')
+const formNumericId = ref('')
 const formRemark = ref('')
 
 function openOrderForm() {
   showOrderForm.value = true
-  formGameType.value = '手游'
+  formGameType.value = '端游'
   formPhone.value = ''
   formGameId.value = ''
-  formName.value = ''
+  formNumericId.value = ''
   formRemark.value = ''
 }
 
@@ -157,8 +164,9 @@ function closeOrderForm() {
 }
 
 function submitOrder() {
-  if (!formPhone.value || !formGameId.value || !formName.value) {
-    alert('请填写手机号、游戏 ID 和姓名')
+  const hasAnyId = !!formGameId.value || !!formNumericId.value
+  if (!formPhone.value || !hasAnyId) {
+    alert('请填写手机号，并且游戏 ID/数字 ID 至少填一个')
     return
   }
   // TODO: 调用后端创建订单
@@ -261,6 +269,28 @@ function submitOrder() {
   font-size: 13px;
   color: #475569;
   line-height: 1.5;
+}
+
+.detail-block {
+  margin-top: 10px;
+  padding: 10px 10px;
+  border-radius: 12px;
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+}
+
+.detail-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 6px;
+}
+
+.detail-content {
+  font-size: 13px;
+  color: #334155;
+  line-height: 1.6;
+  white-space: pre-wrap;
 }
 
 .price-row {
@@ -381,6 +411,29 @@ function submitOrder() {
   font-size: 12px;
   color: #64748b;
   margin-bottom: 10px;
+}
+
+.required-mark {
+  color: #ef4444;
+  font-weight: 700;
+}
+
+.required-text {
+  color: #ef4444;
+  font-weight: 600;
+  margin-left: 4px;
+}
+
+.label-row {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.id-note {
+  font-size: 11px;
+  color: #ef4444;
+  line-height: 1.2;
 }
 
 .order-form {

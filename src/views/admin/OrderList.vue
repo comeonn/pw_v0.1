@@ -13,11 +13,11 @@
       <select v-model="status" class="select">
         <option value="">全部状态</option>
         <option value="pending_pay">待支付</option>
-        <option value="pending_accept">待接单</option>
-        <option value="ongoing">进行中</option>
-        <option value="pending_confirm">待确认</option>
-        <option value="finished">已完成</option>
-        <option value="cancelled">已取消</option>
+        <option value="pending_dispatch">待派单</option>
+        <option value="waiting_worker">待接单</option>
+        <option value="pending_close">待结单</option>
+        <option value="closed">已结单</option>
+        <option value="finished">已结束</option>
       </select>
       <button type="button" class="btn-primary">查询</button>
     </div>
@@ -51,7 +51,7 @@
               <td>
                 <button type="button" class="btn-link" @click="openDetail(o)">详情</button>
                 <button
-                  v-if="o.status !== 'finished' && o.status !== 'cancelled'"
+                  v-if="canChangeToFinished(o.status)"
                   type="button"
                   class="btn-link"
                   @click="changeToFinished(o)"
@@ -91,12 +91,16 @@ const status = ref('')
 
 const orderStatusText: Record<string, string> = {
   pending_pay: '待支付',
-  pending_accept: '待接单',
-  ongoing: '进行中',
-  pending_confirm: '待确认',
-  finished: '已结束',
-  cancelled: '已取消',
-  unassigned: '未派单'
+  pending_dispatch: '待派单',
+  waiting_worker: '待接单',
+  pending_close: '待结单',
+  closed: '已结单',
+  finished: '已结束'
+}
+
+/** 管理员可将「待支付、待派单、待接单、待结单」改为已结束 */
+function canChangeToFinished(status: string) {
+  return ['pending_pay', 'pending_dispatch', 'waiting_worker', 'pending_close'].includes(status)
 }
 
 type OrderRow = {
@@ -111,11 +115,12 @@ type OrderRow = {
 }
 
 const mockOrders = ref<OrderRow[]>([
-  { orderNo: 'ORD202503050001', userId: '10001', userName: '老板小明', goodsName: '春服护航 1小时', goodsCover: '/goods-1.png', amount: '38.00', status: 'finished', createdAt: '2025-03-04 10:20' },
-  { orderNo: 'ORD202503050002', userId: '10003', userName: '氪金玩家', goodsName: '跑刀代打', goodsCover: '/goods-2.png', amount: '25.00', status: 'ongoing', createdAt: '2025-03-05 09:15' },
-  { orderNo: 'ORD202503040003', userId: '10005', userName: '新手老板', goodsName: '33 上分', goodsCover: '/goods-1.png', amount: '88.00', status: 'pending_accept', createdAt: '2025-03-04 18:30' },
-  { orderNo: 'ORD202503040004', userId: '10001', userName: '老板小明', goodsName: '代肝周常', goodsCover: '/goods-2.png', amount: '50.00', status: 'pending_confirm', createdAt: '2025-03-04 14:00' },
-  { orderNo: 'ORD202503030005', userId: '10003', userName: '氪金玩家', goodsName: '春服护航 3小时', goodsCover: '/goods-1.png', amount: '98.00', status: 'unassigned', createdAt: '2025-03-03 16:22' }
+  { orderNo: 'ORD202503050001', userId: '10001', userName: '老板小明', goodsName: '春服护航 1小时', goodsCover: '/goods-1.png', amount: '38.00', status: 'closed', createdAt: '2025-03-04 10:20' },
+  { orderNo: 'ORD202503050002', userId: '10003', userName: '氪金玩家', goodsName: '跑刀代打', goodsCover: '/goods-2.png', amount: '25.00', status: 'pending_close', createdAt: '2025-03-05 09:15' },
+  { orderNo: 'ORD202503040003', userId: '10005', userName: '新手老板', goodsName: '33 上分', goodsCover: '/goods-1.png', amount: '88.00', status: 'waiting_worker', createdAt: '2025-03-04 18:30' },
+  { orderNo: 'ORD202503040004', userId: '10001', userName: '老板小明', goodsName: '代肝周常', goodsCover: '/goods-2.png', amount: '50.00', status: 'pending_close', createdAt: '2025-03-04 14:00' },
+  { orderNo: 'ORD202503030005', userId: '10003', userName: '氪金玩家', goodsName: '春服护航 3小时', goodsCover: '/goods-1.png', amount: '98.00', status: 'pending_dispatch', createdAt: '2025-03-03 16:22' },
+  { orderNo: 'ORD202503030006', userId: '10002', userName: '路人甲', goodsName: '春服护航 2小时', goodsCover: '/goods-1.png', amount: '68.00', status: 'finished', createdAt: '2025-03-03 12:00' }
 ])
 
 const detailOrder = ref<OrderRow | null>(null)
@@ -221,12 +226,11 @@ function changeToFinished(row: OrderRow) {
 }
 
 .status-tag.pending_pay { background: #fef3c7; color: #92400e; }
-.status-tag.pending_accept { background: #dbeafe; color: #1e40af; }
-.status-tag.ongoing { background: #e0e7ff; color: #3730a3; }
-.status-tag.pending_confirm { background: #fce7f3; color: #9d174d; }
-.status-tag.finished { background: #dcfce7; color: #166534; }
-.status-tag.cancelled { background: #f1f5f9; color: #64748b; }
-.status-tag.unassigned { background: #fee2e2; color: #b91c1c; }
+.status-tag.pending_dispatch { background: #e0e7ff; color: #3730a3; }
+.status-tag.waiting_worker { background: #dbeafe; color: #1e40af; }
+.status-tag.pending_close { background: #fce7f3; color: #9d174d; }
+.status-tag.closed { background: #dcfce7; color: #166534; }
+.status-tag.finished { background: #f1f5f9; color: #64748b; }
 
 .btn-link {
   padding: 0 4px;

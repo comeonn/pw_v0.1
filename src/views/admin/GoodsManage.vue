@@ -28,6 +28,15 @@
             <input v-model="form.name" type="text" class="form-input" placeholder="请输入商品名称" required />
           </div>
           <div class="form-group">
+            <label class="form-label">商品详情介绍</label>
+            <textarea
+              v-model="form.detail"
+              class="form-input textarea"
+              rows="5"
+              placeholder="请输入商品详细介绍（将用于老板端查看商品、打手端接单展示）"
+            />
+          </div>
+          <div class="form-group">
             <label class="form-label">分类 <span class="required">*</span></label>
             <select v-model="form.category" class="form-select" required>
               <option value="">请选择分类</option>
@@ -133,6 +142,7 @@ interface GoodItem {
   cover: string
   bossPrice: string
   workerAmount: string
+  detail?: string
   sales: number
   sort: number
 }
@@ -149,11 +159,61 @@ const categoryText: Record<string, string> = {
 }
 
 const mockGoods = ref<GoodItem[]>([
-  { id: 'G001', name: '春服护航 1小时', category: 'hourly', cover: '/goods-1.png', bossPrice: '38.00', workerAmount: '28.00', sales: 256, sort: 1 },
-  { id: 'G002', name: '春服护航 3小时', category: 'hourly', cover: '/goods-2.png', bossPrice: '98.00', workerAmount: '72.00', sales: 128, sort: 2 },
-  { id: 'G003', name: '跑刀代打', category: 'clear', cover: '/goods-1.png', bossPrice: '25.00', workerAmount: '18.00', sales: 89, sort: 3 },
-  { id: 'G004', name: '33 上分', category: 'fun', cover: '/goods-1.png', bossPrice: '88.00', workerAmount: '65.00', sales: 312, sort: 4 },
-  { id: 'G005', name: '代肝周常', category: 'basic', cover: '/goods-2.png', bossPrice: '50.00', workerAmount: '38.00', sales: 67, sort: 5 }
+  {
+    id: 'G001',
+    name: '春服护航 1小时',
+    category: 'hourly',
+    cover: '/goods-1.png',
+    bossPrice: '38.00',
+    workerAmount: '28.00',
+    detail: '服务内容：护航陪玩 1 小时\n说明：可语音/可不语音，按需求调整节奏',
+    sales: 256,
+    sort: 1
+  },
+  {
+    id: 'G002',
+    name: '春服护航 3小时',
+    category: 'hourly',
+    cover: '/goods-2.png',
+    bossPrice: '98.00',
+    workerAmount: '72.00',
+    detail: '服务内容：护航陪玩 3 小时\n说明：适合上分冲刺/战术局，可拆分多段进行',
+    sales: 128,
+    sort: 2
+  },
+  {
+    id: 'G003',
+    name: '跑刀代打',
+    category: 'clear',
+    cover: '/goods-1.png',
+    bossPrice: '25.00',
+    workerAmount: '18.00',
+    detail: '服务内容：跑刀代打\n说明：按路线效率刷取，过程中可同步进度',
+    sales: 89,
+    sort: 3
+  },
+  {
+    id: 'G004',
+    name: '33 上分',
+    category: 'fun',
+    cover: '/goods-1.png',
+    bossPrice: '88.00',
+    workerAmount: '65.00',
+    detail: '服务内容：33 上分\n说明：节奏快，建议语音沟通',
+    sales: 312,
+    sort: 4
+  },
+  {
+    id: 'G005',
+    name: '代肝周常',
+    category: 'basic',
+    cover: '/goods-2.png',
+    bossPrice: '50.00',
+    workerAmount: '38.00',
+    detail: '服务内容：代肝周常\n说明：按目标拆解任务，阶段反馈',
+    sales: 67,
+    sort: 5
+  }
 ])
 
 const showFormModal = ref(false)
@@ -161,6 +221,7 @@ const formMode = ref<'add' | 'edit'>('add')
 const editingId = ref<string | null>(null)
 const form = reactive({
   name: '',
+  detail: '',
   category: '' as GoodCategory | '',
   cover: '',
   bossPrice: '',
@@ -186,6 +247,7 @@ function openAddModal() {
   formMode.value = 'add'
   editingId.value = null
   form.name = ''
+  form.detail = ''
   form.category = ''
   form.cover = ''
   form.bossPrice = ''
@@ -199,6 +261,7 @@ function openEditModal(g: GoodItem) {
   formMode.value = 'edit'
   editingId.value = g.id
   form.name = g.name
+  form.detail = g.detail || ''
   form.category = g.category
   form.cover = g.cover
   form.bossPrice = g.bossPrice
@@ -239,6 +302,7 @@ function submitForm() {
   }
   const payload = {
     name: form.name.trim(),
+    detail: form.detail.trim(),
     category: categoryVal,
     cover: form.cover,
     bossPrice,
@@ -255,6 +319,7 @@ function submitForm() {
     const item = mockGoods.value.find((g) => g.id === editingId.value)
     if (item) {
       item.name = payload.name
+      item.detail = payload.detail
       item.category = payload.category
       item.cover = payload.cover
       item.bossPrice = payload.bossPrice
@@ -457,6 +522,12 @@ function removeGood(g: GoodItem) {
   border: 1px solid #e5e7eb;
   border-radius: 6px;
   background: #fff;
+}
+
+.form-input.textarea {
+  resize: vertical;
+  min-height: 108px;
+  line-height: 1.5;
 }
 
 .modal-actions {

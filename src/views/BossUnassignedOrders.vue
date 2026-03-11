@@ -23,7 +23,7 @@
       <section class="card">
         <div class="card-head">
           <span class="card-title">
-            {{ activeTab === 'toDispatch' ? '待派单列表' : tabsMap[activeTab].label + '（示意）' }}
+            {{ activeTab === 'toDispatch' ? '待派单列表' : tabsMap[activeTab].label }}
           </span>
         </div>
         <div v-if="activeTab === 'toDispatch' && unassignedOrders.length" class="order-list">

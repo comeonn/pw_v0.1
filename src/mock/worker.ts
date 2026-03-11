@@ -1,4 +1,5 @@
-export type WorkerOrderStatus = 'waiting' | 'ongoing' | 'pendingConfirm' | 'finished'
+/** 打手端订单状态：待接单(大厅) | 待结单 | 已结单 | 已结束 */
+export type WorkerOrderStatus = 'waiting' | 'pending_close' | 'closed' | 'finished'
 
 export type WorkerLevel = 'gold' | 'normal'
 
@@ -23,6 +24,7 @@ export interface WorkerOrder {
   expectedTime: string
   createdAt: string
   status: WorkerOrderStatus
+  phone?: string
   gameId?: string
   numericId?: string
   bossNote?: string
@@ -65,6 +67,7 @@ export const MOCK_AVAILABLE_ORDERS: WorkerOrder[] = [
     expectedTime: '预计 40 分钟',
     createdAt: '2026-03-03 14:20',
     status: 'waiting',
+    phone: '13812345566',
     gameId: '春服-小阿怪#5566',
     numericId: '88990011',
     bossNote: '优先带上语音，有需要可多局续费'
@@ -80,6 +83,7 @@ export const MOCK_AVAILABLE_ORDERS: WorkerOrder[] = [
     expectedTime: '预计 30 分钟',
     createdAt: '2026-03-03 13:45',
     status: 'waiting',
+    phone: '15600002333',
     gameId: '春服-小明#2333',
     numericId: '77001234'
   },
@@ -94,6 +98,7 @@ export const MOCK_AVAILABLE_ORDERS: WorkerOrder[] = [
     expectedTime: '预计 50 分钟',
     createdAt: '2026-03-03 13:10',
     status: 'waiting',
+    phone: '18990009090',
     gameId: '春服-老玩家#9090',
     numericId: '66554433'
   }
@@ -110,7 +115,8 @@ export const MOCK_MY_ORDERS: WorkerOrder[] = [
     workerPrice: 110.0,
     expectedTime: '进行中',
     createdAt: '2026-03-02 21:30',
-    status: 'ongoing',
+    status: 'pending_close',
+    phone: '13900001001',
     gameId: '春服-上分老板#1001',
     numericId: '11223344',
     bossNote: '开黑优先，帮看看天赋搭配'
@@ -125,7 +131,8 @@ export const MOCK_MY_ORDERS: WorkerOrder[] = [
     workerPrice: 130.0,
     expectedTime: '待老板确认',
     createdAt: '2026-03-02 20:10',
-    status: 'pendingConfirm',
+    status: 'pending_close',
+    phone: '13700007788',
     gameId: '春服-战术家#7788',
     numericId: '55667788',
     bossNote: '带走两局，注意节奏别太快'
@@ -138,12 +145,29 @@ export const MOCK_MY_ORDERS: WorkerOrder[] = [
     levelTag: '普通订单',
     bossPrice: 149.0,
     workerPrice: 95.0,
-    expectedTime: '已完成',
+    expectedTime: '已结单',
     createdAt: '2026-03-01 19:05',
-    status: 'finished',
+    status: 'closed',
+    phone: '18800009999',
     gameId: '春服-刀刀暴击#9999',
     numericId: '99887766',
     bossNote: '多刷几圈材料不急'
+  },
+  {
+    id: 'O20260228001',
+    goodsId: 1,
+    title: '护航 · 队滅上分 2 局',
+    mode: '护航 / 基础保底',
+    levelTag: '普通订单',
+    bossPrice: 59.0,
+    workerPrice: 40.0,
+    expectedTime: '已结束',
+    createdAt: '2026-02-28 15:00',
+    status: 'finished',
+    phone: '13600000000',
+    gameId: '春服-测试#0000',
+    numericId: '12345678',
+    bossNote: '管理员改为已结束'
   }
 ]
 
