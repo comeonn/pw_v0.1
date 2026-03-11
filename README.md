@@ -61,7 +61,7 @@ npm run preview
   - 转盘三档奖品文案可配置；右上角「公示」文字按钮，点击弹窗展示管理端设置的公示文本。
   - 当前用 mock 支付与开奖逻辑（后续可换成真实接口）
 - `/goods/:id`：**商品详情**
-  - 轮播展示图、标题、简介、价格、销量
+  - 轮播展示图、标题、简介、**商品详情介绍**、价格、销量
   - 底部固定 “立即下单” 按钮：
     - 点击后弹窗填写下单信息：游戏类型、手机号、游戏 ID、姓名、备注
     - 提交后跳转到老板端“我的订单”页（默认 `待派单` Tab），后续可对接真实下单/支付接口
@@ -80,6 +80,12 @@ npm run preview
 
 打手端所有页面底部使用打手专属导航，而不是老板 TabBar。
 
+### `/worker/activate` —— 打手授权（首次进入）
+
+- 首次从服务号菜单进入打手端时，若尚未完成授权，会先进入授权页。
+- 管理员在运营后台生成 **打手授权码**，打手输入授权码后完成激活。
+- 授权成功后会记录本地激活标记，后续进入 `/worker/*` 不再展示授权页。
+
 ### `/worker/home` —— 接单大厅
 
 - 头部展示打手档案（`MOCK_WORKER_PROFILE`）：
@@ -89,9 +95,11 @@ npm run preview
   - 商品缩略图、单子标题、玩法模式（护航/跑刀/33/代肝）
   - **价格**（仅展示一个价格）
   - 创建时间、老板备注（列表仅做摘要展示）
-  - 点击整张卡片可查看**订单详情**（包含老板填写的游戏 ID / 数字 ID / 备注等）
-  - 操作按钮：“接单”
-    - 点击后需先填写接单信息：**我的游戏 ID**（必填）、预计上号（必填）、接单备注（选填）
+  - 点击整张卡片可查看**订单详情**：
+    - 展示：商品标题、商品详情、模式类型、价格、订单内容、发布时间、老板备注
+    - 底部按钮：**关闭 / 接单**（列表卡片内不再提供“接单”按钮）
+  - 接单流程：
+    - 在订单详情里点击“接单”后，填写接单信息：**我的游戏 ID**（必填）、预计上号（必填）、接单备注（选填）
     - 提交后跳转到 `/worker/orders`（当前为 mock 行为，后续对接真实接单接口）
 
 ### `/worker/orders` —— 我的单
@@ -101,16 +109,19 @@ npm run preview
 - 列表来源 `MOCK_MY_ORDERS`：
   - 显示标题、模式、价格、时间
   - 状态标签颜色区分：待结单 / 已结单 / 已结束
-  - 点击订单卡片可查看**订单详情**（包含老板填写的游戏 ID / 数字 ID / 备注等）
+  - 点击订单卡片可查看**订单详情**：
+    - 展示：商品标题、商品详情、模式类型、价格、手机号、游戏 ID、数字 ID、老板备注
+    - 已去掉“下单时间”展示
 
 ### `/worker/wallet` —— 钱包
 
-- 余额卡片（`MOCK_WALLET`）：
+- 余额卡片：
   - 可提现余额
   - 累计收入、累计提现
   - “提现”按钮
-- 账单明细（`MOCK_WALLET_TXN`）：
-  - 收入、提现申请等记录，正负金额、时间、备注
+- 账单明细：
+  - 优先从后端接口拉取（包含管理员“调整钱包”的流水）
+  - 后端不可用时回退展示 mock 数据
 - 提现弹窗：
   - 说明目前通过 **添加客服微信** 完成提现
   - 展示客服微信号和二维码占位（可替换为真实二维码）
@@ -129,6 +140,8 @@ npm run preview
 
 - **登录**：`/admin/login`（账号密码，后续对接后端鉴权）
 - **用户管理**：`/admin/users` — 老板列表 / 打手列表（搜索、封禁、查看详情）；**设置保护期时间**：老板下单后金牌打手可立即在接单大厅看到该单，普通打手需过了保护期后才可见；弹窗内可配置保护期数值及单位（秒 / 分钟 / 小时），对接后端生效。
+  - 支持生成 **打手授权码**（用于打手首次进入完成授权）
+  - 支持对打手进行 **钱包余额调整**（会产生流水记录，打手端钱包可见）
 - **订单管理**：`/admin/orders` — 订单列表（按状态筛选）；商品列展示商品图片与名称；
   - 操作列提供「详情」按钮：弹窗展示该订单商品详情（商品图、名称、金额、订单号、下单时间）
   - 操作列提供「改为已结束」按钮：仅对待支付/待派单/待接单/待结单显示，可将订单改为 **已结束**（当前为 mock，后续对接后端）
@@ -136,6 +149,7 @@ npm run preview
 - **提现管理**：`/admin/withdraws` — 打手提现申请列表，标记「已线下转账」（线下通过运营微信转账）。当前在侧栏中隐藏，路由与页面保留，后续可恢复展示。
 - **基础配置**
   - **商品管理**：`/admin/goods` — 商品增删改；列表展示商品 ID、名称、分类、**老板价格**、**打手金额**、销量及操作（编辑、删除）；已去掉状态、排序、下架列。
+    - 新增/编辑商品支持填写 **商品详情介绍**，用于老板端商品详情与打手端接单时展示。
   - **文案管理**：`/admin/copy` — **首页海报**、热门推荐海报、抽奖转盘海报上传（首页与两个入口卡片可展示管理员上传的图片）；首页公告、**客服微信号**（文本）、**客服微信号图片**（上传二维码/图片）；对接后端后在此编辑并发布。
 
 访问入口：浏览器打开 `http://localhost:5173/admin` 会跳转到 `/admin/users`，未登录时可先访问 `/admin/login`。后台与 H5 共用同一套构建与部署，部署后后台地址为 `https://你的域名/admin`。
@@ -149,15 +163,124 @@ npm run preview
 
 ## 后端进度（backend）
 
-后端项目已初始化在与 `v0.1` 同级的 `backend/`，技术栈：**Spring Boot 2.7 + JDK 1.8 + MySQL + JPA**，文件存储为本地目录（默认 `./uploads`）。
+后端项目已初始化在与 `v0.1` 同级的 `backend/`，技术栈：**Spring Boot 2.7 + JDK 1.8 + MySQL 5.7 + MyBatis-Plus**，文件存储为本地目录（默认 `./uploads`）。
 
 - **全表审计字段**：所有表包含 `created_by`、`created_on`、`updated_by`、`updated_on`（实体继承 `BaseAuditEntity` 自动填充）
 - **已完成模块**
   - 用户：`users`（角色 BOSS/WORKER/ADMIN）
   - 商品：`GET /api/goods`、`GET /api/goods/{id}`（`images` 返回数组）
   - 订单：`POST /api/orders`（创建订单，当前简化为直接创建为 `待派单`）
+  - 打手授权码：
+    - `POST /api/admin/invite-codes` 生成授权码
+    - `POST /api/worker/activate` 打手兑换授权码并成为 WORKER
+  - 打手钱包：
+    - `POST /api/admin/wallet/adjust` 管理员调整打手余额（写入流水）
+    - `GET /api/worker/wallet?workerUserId=...` 打手查询余额与流水
 
 运行方式与接口示例见 `backend/README.md`。
+
+## 数据库表结构（MySQL 5.7）
+
+> 以下为当前后端使用到的所有表。字段均已补充含义注释，便于建库与对接。
+
+### `users` 用户表
+
+| 字段 | 类型 | 说明 |
+|---|---|---|
+| `id` | BIGINT | 主键，自增 |
+| `role` | VARCHAR(16) | 角色：BOSS/WORKER/ADMIN |
+| `status` | VARCHAR(16) | 状态：ACTIVE/BANNED |
+| `wechat_openid` | VARCHAR(64) | 微信 openid（同一 openid 对应一个用户） |
+| `nickname` | VARCHAR(64) | 昵称 |
+| `avatar` | VARCHAR(512) | 头像 URL/路径 |
+| `created_by` | VARCHAR(64) | 创建人（审计） |
+| `created_on` | DATETIME(3) | 创建时间（审计） |
+| `updated_by` | VARCHAR(64) | 修改人（审计） |
+| `updated_on` | DATETIME(3) | 修改时间（审计） |
+
+### `goods` 商品表
+
+| 字段 | 类型 | 说明 |
+|---|---|---|
+| `id` | BIGINT | 主键，自增 |
+| `title` | VARCHAR(128) | 商品标题 |
+| `intro` | TEXT | 简介 |
+| `cover` | VARCHAR(512) | 封面图 URL/路径 |
+| `images` | TEXT | 轮播图 JSON 数组字符串 |
+| `price` | DECIMAL(10,2) | 老板价格（下单价） |
+| `worker_price` | DECIMAL(10,2) | 打手金额 |
+| `original_price` | DECIMAL(10,2) | 原价（可选） |
+| `sales` | INT | 销量 |
+| `category_l1` | VARCHAR(32) | 一级分类：escort/loot/33/grind |
+| `category_l2` | VARCHAR(32) | 二级分类：prop/single/special/basic/opening |
+| `status` | VARCHAR(16) | 状态：on/off |
+| `created_by` | VARCHAR(64) | 创建人（审计） |
+| `created_on` | DATETIME(3) | 创建时间（审计） |
+| `updated_by` | VARCHAR(64) | 修改人（审计） |
+| `updated_on` | DATETIME(3) | 修改时间（审计） |
+
+### `orders` 订单表
+
+| 字段 | 类型 | 说明 |
+|---|---|---|
+| `id` | BIGINT | 主键，自增 |
+| `order_no` | VARCHAR(32) | 订单号（唯一） |
+| `boss_user_id` | BIGINT | 老板用户 ID |
+| `goods_id` | BIGINT | 商品 ID |
+| `title_snapshot` | VARCHAR(256) | 下单时商品标题快照 |
+| `price_snapshot` | DECIMAL(10,2) | 下单时老板价格快照 |
+| `worker_price_snapshot` | DECIMAL(10,2) | 下单时打手金额快照 |
+| `status` | VARCHAR(32) | 订单状态（枚举名） |
+| `boss_game_type` | VARCHAR(16) | 老板派单：游戏类型（手游/端游） |
+| `boss_phone` | VARCHAR(32) | 老板派单：手机号 |
+| `boss_game_id` | VARCHAR(64) | 老板派单：游戏 ID |
+| `boss_numeric_id` | VARCHAR(32) | 老板派单：数字 ID |
+| `boss_name` | VARCHAR(64) | 老板派单：姓名/称呼 |
+| `boss_remark` | TEXT | 老板派单：备注 |
+| `worker_user_id` | BIGINT | 打手用户 ID |
+| `worker_game_id` | VARCHAR(64) | 打手接单：打手游戏 ID |
+| `worker_start_time_text` | VARCHAR(64) | 打手接单：预计上号时间（文本） |
+| `worker_remark` | TEXT | 打手接单：备注 |
+| `created_by` | VARCHAR(64) | 创建人（审计） |
+| `created_on` | DATETIME(3) | 创建时间（审计） |
+| `updated_by` | VARCHAR(64) | 修改人（审计） |
+| `updated_on` | DATETIME(3) | 修改时间（审计） |
+
+### `worker_invite_codes` 打手授权码表
+
+| 字段 | 类型 | 说明 |
+|---|---|---|
+| `id` | BIGINT | 主键，自增 |
+| `code` | VARCHAR(32) | 授权码（唯一） |
+| `status` | VARCHAR(16) | 状态：unused/used/disabled |
+| `created_by_admin_user_id` | BIGINT | 生成该授权码的管理员用户 ID |
+| `created_at` | DATETIME(3) | 生成时间 |
+| `used_by_user_id` | BIGINT | 使用该授权码的用户 ID |
+| `used_at` | DATETIME(3) | 使用时间 |
+
+### `worker_wallet` 打手钱包余额表
+
+| 字段 | 类型 | 说明 |
+|---|---|---|
+| `id` | BIGINT | 主键，自增 |
+| `worker_user_id` | BIGINT | 打手用户 ID（唯一） |
+| `balance` | DECIMAL(12,2) | 当前余额 |
+| `updated_at` | DATETIME(3) | 最近更新时间 |
+
+### `worker_wallet_txn` 打手钱包流水表
+
+| 字段 | 类型 | 说明 |
+|---|---|---|
+| `id` | BIGINT | 主键，自增 |
+| `worker_user_id` | BIGINT | 打手用户 ID |
+| `type` | VARCHAR(16) | 流水类型：income/withdraw/adjust |
+| `amount` | DECIMAL(12,2) | 变动金额：正加负减 |
+| `balance_after` | DECIMAL(12,2) | 变动后余额快照 |
+| `title` | VARCHAR(128) | 标题 |
+| `remark` | VARCHAR(512) | 备注 |
+| `actor_role` | VARCHAR(16) | 操作人角色（例如 ADMIN） |
+| `actor_user_id` | BIGINT | 操作人用户 ID |
+| `created_at` | DATETIME(3) | 创建时间 |
 
 ## 下一步可接入内容（建议）
 

@@ -9,6 +9,7 @@ import BossWallet from '../views/BossWallet.vue'
 import WorkerHome from '../views/WorkerHome.vue'
 import WorkerOrders from '../views/WorkerOrders.vue'
 import WorkerWallet from '../views/WorkerWallet.vue'
+import WorkerActivate from '../views/WorkerActivate.vue'
 import AdminLayout from '../layouts/AdminLayout.vue'
 import AdminLogin from '../views/admin/AdminLogin.vue'
 import UserList from '../views/admin/UserList.vue'
@@ -29,6 +30,7 @@ const router = createRouter({
     { path: '/goods/:id', name: 'GoodsDetail', component: GoodsDetail, meta: { showTabbar: false } },
     // 打手端路由（独立入口，服务号菜单可直接跳 /worker/home）
     { path: '/worker', redirect: '/worker/home' },
+    { path: '/worker/activate', name: 'WorkerActivate', component: WorkerActivate, meta: { showTabbar: false } },
     { path: '/worker/home', name: 'WorkerHome', component: WorkerHome, meta: { showTabbar: false } },
     { path: '/worker/orders', name: 'WorkerOrders', component: WorkerOrders, meta: { showTabbar: false } },
     { path: '/worker/wallet', name: 'WorkerWallet', component: WorkerWallet, meta: { showTabbar: false } },

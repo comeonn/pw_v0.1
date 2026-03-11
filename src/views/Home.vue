@@ -10,9 +10,17 @@
 
       <section class="notice card-elevated">
         <span class="notice-icon">📢</span>
-        <span class="notice-text">
-          如果打开客服页不好联系请客免单！如果开车看私加首…
-        </span>
+        <div class="notice-track" aria-label="公告">
+          <div class="notice-marquee">
+            <span class="notice-text" title="如果打开客服页不好联系请客免单！如果开车看私加首…">
+              如果打开客服页不好联系请客免单！如果开车看私加首…
+            </span>
+            <span class="notice-gap" aria-hidden="true"></span>
+            <span class="notice-text" aria-hidden="true">
+              如果打开客服页不好联系请客免单！如果开车看私加首…
+            </span>
+          </div>
+        </div>
       </section>
 
       <section class="search-section">
@@ -147,10 +155,44 @@ const lotteryPosterSrc = ref(localStorage.getItem('lottery_poster') || '/lottery
   border-radius: 8px;
   margin-bottom: 18px;
   font-size: 12px;
+  overflow: hidden;
 }
 
 .notice-icon {
   margin-right: 4px;
+}
+
+.notice-track {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.notice-marquee {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  will-change: transform;
+  animation: notice-marquee 12s linear infinite;
+}
+
+.notice-text {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.notice-gap {
+  width: 36px;
+  flex: 0 0 auto;
+}
+
+@keyframes notice-marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
 }
 
 .search-section {

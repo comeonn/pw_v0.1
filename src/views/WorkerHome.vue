@@ -78,14 +78,6 @@
               <span class="label">价格</span>
               <span class="value highlight">￥{{ detailOrder.workerPrice }}</span>
             </div>
-            <div class="detail-row">
-              <span class="label">订单内容</span>
-              <span class="value">{{ detailOrder.expectedTime }}</span>
-            </div>
-            <div class="detail-row">
-              <span class="label">发布时间</span>
-              <span class="value">{{ detailOrder.createdAt }}</span>
-            </div>
             <div class="detail-row" v-if="detailOrder.bossNote">
               <span class="label">老板备注</span>
               <span class="value remark">{{ detailOrder.bossNote }}</span>
@@ -95,57 +87,6 @@
             <button type="button" class="detail-btn" @click="closeDetail">关闭</button>
             <button type="button" class="detail-btn primary" @click="acceptFromDetail">
               接单
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div
-        v-if="acceptOrder"
-        class="detail-mask"
-        @click.self="closeAccept"
-      >
-        <div class="detail-modal">
-          <div class="detail-title">确认接单并填写信息</div>
-          <div class="detail-body">
-            <div class="detail-row">
-              <span class="label">标题</span>
-              <span class="value">{{ acceptOrder.title }}</span>
-            </div>
-            <div class="detail-row">
-              <span class="label">价格</span>
-              <span class="value highlight">￥{{ acceptOrder.workerPrice }}</span>
-            </div>
-            <div class="detail-row">
-              <span class="label">我的游戏 ID</span>
-              <input
-                v-model="formWorkerGameId"
-                class="detail-input"
-                placeholder="请输入你在游戏里的 ID / 昵称"
-              />
-            </div>
-            <div class="detail-row">
-              <span class="label">预计上号</span>
-              <input
-                v-model="formStartTime"
-                class="detail-input"
-                placeholder="例：10 分钟内 / 晚上 8 点"
-              />
-            </div>
-            <div class="detail-row">
-              <span class="label">接单备注</span>
-              <textarea
-                v-model="formWorkerRemark"
-                class="detail-input textarea"
-                rows="3"
-                placeholder="可填写你的玩法特点、语音情况、注意事项等"
-              />
-            </div>
-          </div>
-          <div class="detail-actions">
-            <button type="button" class="detail-btn" @click="closeAccept">取消</button>
-            <button type="button" class="detail-btn primary" @click="submitAccept">
-              确认接单
             </button>
           </div>
         </div>
@@ -193,10 +134,6 @@ const profile = MOCK_WORKER_PROFILE
 const availableOrders = MOCK_AVAILABLE_ORDERS
 
 const detailOrder = ref<WorkerOrder | null>(null)
-const acceptOrder = ref<WorkerOrder | null>(null)
-const formStartTime = ref('')
-const formWorkerGameId = ref('')
-const formWorkerRemark = ref('')
 
 const goodsCoverMap: Record<number, string> = GOODS.reduce(
   (map, g) => {
@@ -227,37 +164,10 @@ function closeDetail() {
   detailOrder.value = null
 }
 
-function openAccept(order: WorkerOrder) {
-  acceptOrder.value = order
-  formStartTime.value = ''
-  formWorkerGameId.value = ''
-  formWorkerRemark.value = ''
-}
-
-function closeAccept() {
-  acceptOrder.value = null
-}
-
 function acceptFromDetail() {
-  if (!detailOrder.value) return
-  const order = detailOrder.value
   closeDetail()
-  openAccept(order)
-}
-
-function submitAccept() {
-  if (!formWorkerGameId.value) {
-    alert('请填写你的游戏 ID')
-    return
-  }
-  if (!formStartTime.value) {
-    alert('请填写预计上号时间')
-    return
-  }
-  // TODO: 调用后端接口完成接单，并保存打手备注信息
-  alert('已提交接单信息（示例），后续对接后端接口生效')
-  acceptOrder.value = null
-  router.push('/worker/orders')
+  // TODO: 后续对接后端接单接口
+  router.push({ name: 'WorkerOrders', query: { from: 'accepted' } })
 }
 </script>
 

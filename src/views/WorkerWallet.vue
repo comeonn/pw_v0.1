@@ -10,7 +10,7 @@
       <section class="wallet-card">
         <div class="wallet-top">
           <div class="wallet-label">可提现余额（元）</div>
-          <div class="wallet-balance">￥{{ wallet.balance.toFixed(2) }}</div>
+        <div class="wallet-balance">￥{{ wallet.balance.toFixed(2) }}</div>
         </div>
         <button class="withdraw-btn" type="button" @click="showWithdraw = true">
           提现
@@ -79,19 +79,50 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { MOCK_WALLET, MOCK_WALLET_TXN } from '../mock/worker'
+import { getJson } from '../api/http'
 
 const router = useRouter()
-const wallet = MOCK_WALLET
-const txns = MOCK_WALLET_TXN
+const wallet = ref(MOCK_WALLET)
+const txns = ref(MOCK_WALLET_TXN)
 
 const showWithdraw = ref(false)
 
 function go(path: string) {
   router.push(path)
 }
+
+onMounted(async () => {
+  const workerUserId = Number(localStorage.getItem('worker_user_id'))
+  if (!Number.isFinite(workerUserId) || workerUserId <= 0) return
+  try {
+    const resp = await getJson<{
+      balance: number
+      txns: Array<{
+        id: number
+        type: string
+        amount: number
+        title?: string
+        remark?: string
+        createdAt: string
+      }>
+    }>(`/api/worker/wallet?workerUserId=${workerUserId}`)
+
+    wallet.value = { ...MOCK_WALLET, balance: resp.balance }
+    txns.value = resp.txns.map((t) => ({
+      id: String(t.id),
+      type: (t.type as any) || 'adjust',
+      amount: Number(t.amount) || 0,
+      title: t.title || '钱包变动',
+      remark: t.remark,
+      createdAt: t.createdAt
+    }))
+  } catch {
+    // 保持 mock 展示
+  }
+})
 </script>
 
 <style scoped>

@@ -32,6 +32,28 @@
       <button type="button" class="btn-secondary" @click="showProtectionModal = true">
         设置保护期时间
       </button>
+      <button type="button" class="btn-secondary" @click="openInviteModal">
+        生成打手授权码
+      </button>
+    </div>
+    <!-- 生成打手授权码弹窗 -->
+    <div v-if="showInviteModal" class="modal-mask" @click.self="closeInviteModal">
+      <div class="modal">
+        <h3 class="modal-title">生成打手授权码</h3>
+        <p class="modal-desc">将授权码发给打手用户，用于首次进入打手端完成授权。</p>
+        <div class="invite-code-box">
+          <span class="invite-code">{{ inviteCode || '—' }}</span>
+          <button type="button" class="btn-link" :disabled="loadingInvite" @click="generateInvite">
+            {{ loadingInvite ? '生成中…' : '重新生成' }}
+          </button>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" @click="closeInviteModal">关闭</button>
+          <button type="button" class="btn-primary" :disabled="!inviteCode" @click="copyInviteCode">
+            复制授权码
+          </button>
+        </div>
+      </div>
     </div>
     <!-- 保护期时间弹窗：按银牌/金牌/王牌分别设置 -->
     <div v-if="showProtectionModal" class="modal-mask" @click.self="showProtectionModal = false">
@@ -122,17 +144,51 @@
                 <button v-if="role === 'worker' && u.role === 'worker'" type="button" class="btn-link" @click="openLevelModal(u as WorkerUser)">设置级别</button>
                 <button type="button" class="btn-link">{{ u.status === 'normal' ? '封禁' : '解封' }}</button>
                 <button type="button" class="btn-link">详情</button>
+                <button
+                  v-if="role === 'worker' && u.role === 'worker'"
+                  type="button"
+                  class="btn-link"
+                  @click="openWalletAdjust(u as WorkerUser)"
+                >
+                  调整钱包
+                </button>
               </td>
             </tr>
           </tbody>
         </table>
       </div>
     </section>
+    <!-- 调整打手钱包弹窗 -->
+    <div v-if="showWalletModal" class="modal-mask" @click.self="closeWalletModal">
+      <div class="modal">
+        <h3 class="modal-title">调整打手钱包</h3>
+        <p class="modal-desc">打手：{{ walletWorker?.nickname }}（ID {{ walletWorker?.id }}）</p>
+        <div class="form-group">
+          <label class="form-label">金额（正数加钱，负数扣钱）</label>
+          <input v-model="walletAmount" type="number" step="0.01" class="form-input" placeholder="例如 10 或 -5" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">标题</label>
+          <input v-model="walletTitle" type="text" class="form-input" placeholder="管理员差价调整" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">备注</label>
+          <input v-model="walletRemark" type="text" class="form-input" placeholder="可填写原因/订单号等" />
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" @click="closeWalletModal">取消</button>
+          <button type="button" class="btn-primary" :disabled="walletSubmitting" @click="submitWalletAdjust">
+            {{ walletSubmitting ? '提交中…' : '确认调整' }}
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, reactive } from 'vue'
+import { postJson } from '../../api/http'
 
 type WorkerLevelId = 'silver' | 'gold' | 'ace'
 type ProtectionUnit = 'second' | 'minute' | 'hour'
@@ -217,6 +273,93 @@ function confirmLevel() {
 function saveProtection() {
   // TODO: 调用后端接口保存各级别保护期（protectionByLevel），接单大厅按打手级别与对应保护期延迟展示新单
   showProtectionModal.value = false
+}
+
+const showInviteModal = ref(false)
+const inviteCode = ref('')
+const loadingInvite = ref(false)
+
+function openInviteModal() {
+  showInviteModal.value = true
+  if (!inviteCode.value) generateInvite()
+}
+
+function closeInviteModal() {
+  showInviteModal.value = false
+}
+
+async function generateInvite() {
+  loadingInvite.value = true
+  try {
+    const resp = await postJson<{ ok: boolean; code: string }>('/api/admin/invite-codes', {})
+    inviteCode.value = resp.code
+  } catch (e: any) {
+    alert(e?.bodyText || e?.message || '生成失败')
+  } finally {
+    loadingInvite.value = false
+  }
+}
+
+async function copyInviteCode() {
+  if (!inviteCode.value) return
+  try {
+    await navigator.clipboard.writeText(inviteCode.value)
+    alert('已复制')
+  } catch {
+    alert('复制失败，请手动复制：' + inviteCode.value)
+  }
+}
+
+const showWalletModal = ref(false)
+const walletWorker = ref<WorkerUser | null>(null)
+const walletAmount = ref<string>('')
+const walletTitle = ref<string>('管理员差价调整')
+const walletRemark = ref<string>('')
+const walletSubmitting = ref(false)
+
+function openWalletAdjust(u: WorkerUser) {
+  walletWorker.value = u
+  walletAmount.value = ''
+  walletTitle.value = '管理员差价调整'
+  walletRemark.value = ''
+  showWalletModal.value = true
+}
+
+function closeWalletModal() {
+  showWalletModal.value = false
+  walletWorker.value = null
+}
+
+async function submitWalletAdjust() {
+  if (!walletWorker.value) return
+  const amt = Number(walletAmount.value)
+  if (!Number.isFinite(amt) || amt === 0) {
+    alert('请输入非 0 金额')
+    return
+  }
+  walletSubmitting.value = true
+  try {
+    const resp = await postJson<{ ok: boolean; balance: string; txnId: number }>(
+      '/api/admin/wallet/adjust',
+      {
+        workerUserId: Number(walletWorker.value.id),
+        amount: amt,
+        title: walletTitle.value,
+        remark: walletRemark.value,
+        adminUserId: 0
+      }
+    )
+    if (resp.ok) {
+      alert(`已调整，当前余额：${resp.balance}`)
+      closeWalletModal()
+    } else {
+      alert('调整失败')
+    }
+  } catch (e: any) {
+    alert(e?.bodyText || e?.message || '调整失败')
+  } finally {
+    walletSubmitting.value = false
+  }
 }
 </script>
 
@@ -510,5 +653,25 @@ function saveProtection() {
 
 .btn-link:hover {
   text-decoration: underline;
+}
+
+.invite-code-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  background: #f8fafc;
+  margin: 10px 0 16px;
+}
+
+.invite-code {
+  font-size: 16px;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: 1px;
+  user-select: all;
 }
 </style>

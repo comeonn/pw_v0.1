@@ -112,12 +112,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { computed, onMounted, ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { MOCK_MY_ORDERS, type WorkerOrder } from '../mock/worker'
 import { GOODS } from '../mock/goods'
 
 const router = useRouter()
+const route = useRoute()
 
 const tabs = [
   { id: 'all', label: '全部' },
@@ -170,6 +171,15 @@ function openDetail(order: WorkerOrder) {
 function closeDetail() {
   detailOrder.value = null
 }
+
+onMounted(() => {
+  if (route.query.from === 'accepted') {
+    const list = filteredOrders.value
+    if (list.length) {
+      detailOrder.value = list[0]
+    }
+  }
+})
 </script>
 
 <style scoped>
