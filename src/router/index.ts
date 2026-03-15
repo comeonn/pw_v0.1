@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Home from '../views/Home.vue'
+import HotRecommend from '../views/HotRecommend.vue'
 import Lottery from '../views/Lottery.vue'
 import Category from '../views/Category.vue'
 import Mine from '../views/Mine.vue'
@@ -18,10 +19,12 @@ import WithdrawList from '../views/admin/WithdrawList.vue'
 import GoodsManage from '../views/admin/GoodsManage.vue'
 import CopyManage from '../views/admin/CopyManage.vue'
 import LotteryManage from '../views/admin/LotteryManage.vue'
+import HotRecommendManage from '../views/admin/HotRecommendManage.vue'
 const router = createRouter({
   history: createWebHistory(),
   routes: [
     { path: '/', name: 'Home', component: Home, meta: { showTabbar: true } },
+    { path: '/hot', name: 'HotRecommend', component: HotRecommend, meta: { showTabbar: false } },
     { path: '/lottery', name: 'Lottery', component: Lottery, meta: { showTabbar: false } },
     { path: '/category', name: 'Category', component: Category, meta: { showTabbar: true } },
     { path: '/mine', name: 'Mine', component: Mine, meta: { showTabbar: true } },
@@ -47,10 +50,19 @@ const router = createRouter({
         { path: 'withdraws', name: 'WithdrawList', component: WithdrawList },
         { path: 'goods', name: 'GoodsManage', component: GoodsManage },
         { path: 'copy', name: 'CopyManage', component: CopyManage },
-        { path: 'lottery', name: 'LotteryManage', component: LotteryManage }
+        { path: 'lottery', name: 'LotteryManage', component: LotteryManage },
+        { path: 'hot-recommend', name: 'HotRecommendManage', component: HotRecommendManage }
       ]
     }
   ]
+})
+
+router.beforeEach((to) => {
+  if (!to.path.startsWith('/worker')) return true
+  if (to.path === '/worker/activate') return true
+  const activated = localStorage.getItem('worker_activated') === '1'
+  if (!activated) return { path: '/worker/activate' }
+  return true
 })
 
 export default router

@@ -35,10 +35,10 @@
       </section>
 
       <section class="feature-row">
-        <router-link
-          to="/lottery"
-          class="feature-card feature-lottery card-elevated"
-        >
+        <router-link to="/hot" class="feature-card card-elevated">
+          <img :src="hotPosterSrc" alt="热门推荐" class="feature-image" />
+        </router-link>
+        <router-link to="/lottery" class="feature-card card-elevated">
           <img :src="lotteryPosterSrc" alt="抽奖转盘" class="feature-image" />
         </router-link>
       </section>
@@ -61,6 +61,7 @@
           </div>
           <div class="item-info">
             <div class="item-title">{{ item.title }}</div>
+            <div v-if="item.detail || item.intro" class="item-detail">{{ item.detail || item.intro }}</div>
             <div class="item-meta">
               <span class="item-price">￥{{ item.price }}</span>
               <span class="item-sales">已售 {{ item.sales }}</span>
@@ -81,6 +82,7 @@ const keyword = ref('')
 const filteredItems = computed(() => GOODS)
 
 const homePosterSrc = ref(localStorage.getItem('home_poster') || '/banner-ksdj.png')
+const hotPosterSrc = ref(localStorage.getItem('hot_poster') || '/hot-recommend.png')
 const lotteryPosterSrc = ref(localStorage.getItem('lottery_poster') || '/lottery-card.png')
 </script>
 
@@ -284,9 +286,21 @@ const lotteryPosterSrc = ref(localStorage.getItem('lottery_poster') || '/lottery
 }
 
 .item-title {
-  font-size: 13px;
-  line-height: 1.3;
+  font-size: 16px;
+  line-height: 1.35;
   margin-bottom: 4px;
+}
+
+.item-detail {
+  font-size: 12px;
+  line-height: 1.4;
+  color: #64748b;
+  margin-bottom: 6px;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .item-meta {

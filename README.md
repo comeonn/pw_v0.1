@@ -50,7 +50,8 @@ npm run preview
 
 - `/`：**首页**
   - 顶部 Banner、公告条、搜索框可配置（文案管理可上传首页海报，公告为文案配置）
-  - 中部两个入口卡片：热门推荐、抽奖转盘（海报可由文案管理上传替换）
+  - 中部左右两个入口卡片：**热门推荐**（左）、**抽奖转盘**（右）；海报可由文案管理上传（热门推荐海报、抽奖转盘海报）。
+  - 点击「热门推荐」进入 `/hot`，展示运营后台维护的推荐商品列表（接口 `GET /api/hot_recommend_goods`）。
   - 下方商品列表（使用 `src/mock/goods.ts` 的数据）；商品卡展示老板价、已售，无划线优惠。
 - `/category`：**分类页**
   - 一级分类：护航 / 跑刀 / 33 / 代肝
@@ -150,6 +151,7 @@ npm run preview
 - **基础配置**
   - **商品管理**：`/admin/goods` — 商品增删改；列表展示商品 ID、名称、分类、**老板价格**、**打手金额**、销量及操作（编辑、删除）；已去掉状态、排序、下架列。
     - 新增/编辑商品支持填写 **商品详情介绍**，用于老板端商品详情与打手端接单时展示。
+  - **热门推荐**：`/admin/hot-recommend` — 维护老板端首页「热门推荐」入口内的商品列表；从已有商品中选择添加、移除、上移/下移排序；接口见 `GET/POST/DELETE /api/admin/hot_recommend_goods` 及 `PUT .../reorder`。
   - **文案管理**：`/admin/copy` — **首页海报**、热门推荐海报、抽奖转盘海报上传（首页与两个入口卡片可展示管理员上传的图片）；首页公告、**客服微信号**（文本）、**客服微信号图片**（上传二维码/图片）；对接后端后在此编辑并发布。
 
 访问入口：浏览器打开 `http://localhost:5173/admin` 会跳转到 `/admin/users`，未登录时可先访问 `/admin/login`。后台与 H5 共用同一套构建与部署，部署后后台地址为 `https://你的域名/admin`。
@@ -165,7 +167,7 @@ npm run preview
 
 后端项目已初始化在与 `v0.1` 同级的 `backend/`，技术栈：**Spring Boot 2.7 + JDK 1.8 + MySQL 5.7 + MyBatis-Plus**，文件存储为本地目录（默认 `./uploads`）。
 
-- **全表审计字段**：所有表包含 `created_by`、`created_on`、`updated_by`、`updated_on`（实体继承 `BaseAuditEntity` 自动填充）
+- **审计字段约定**：业务主表（如 `users`/`goods`/`orders`/`goods_category`）统一包含 `created_by`、`created_on`、`updated_by`、`updated_on`（实体继承 `BaseAuditEntity` 自动填充）；部分辅助表（如钱包流水、授权码等）可沿用 `created_at/updated_at` 等字段命名。
 - **已完成模块**
   - 用户：`users`（角色 BOSS/WORKER/ADMIN）
   - 商品：`GET /api/goods`、`GET /api/goods/{id}`（`images` 返回数组）
@@ -181,106 +183,7 @@ npm run preview
 
 ## 数据库表结构（MySQL 5.7）
 
-> 以下为当前后端使用到的所有表。字段均已补充含义注释，便于建库与对接。
-
-### `users` 用户表
-
-| 字段 | 类型 | 说明 |
-|---|---|---|
-| `id` | BIGINT | 主键，自增 |
-| `role` | VARCHAR(16) | 角色：BOSS/WORKER/ADMIN |
-| `status` | VARCHAR(16) | 状态：ACTIVE/BANNED |
-| `wechat_openid` | VARCHAR(64) | 微信 openid（同一 openid 对应一个用户） |
-| `nickname` | VARCHAR(64) | 昵称 |
-| `avatar` | VARCHAR(512) | 头像 URL/路径 |
-| `created_by` | VARCHAR(64) | 创建人（审计） |
-| `created_on` | DATETIME(3) | 创建时间（审计） |
-| `updated_by` | VARCHAR(64) | 修改人（审计） |
-| `updated_on` | DATETIME(3) | 修改时间（审计） |
-
-### `goods` 商品表
-
-| 字段 | 类型 | 说明 |
-|---|---|---|
-| `id` | BIGINT | 主键，自增 |
-| `title` | VARCHAR(128) | 商品标题 |
-| `intro` | TEXT | 简介 |
-| `cover` | VARCHAR(512) | 封面图 URL/路径 |
-| `images` | TEXT | 轮播图 JSON 数组字符串 |
-| `price` | DECIMAL(10,2) | 老板价格（下单价） |
-| `worker_price` | DECIMAL(10,2) | 打手金额 |
-| `original_price` | DECIMAL(10,2) | 原价（可选） |
-| `sales` | INT | 销量 |
-| `category_l1` | VARCHAR(32) | 一级分类：escort/loot/33/grind |
-| `category_l2` | VARCHAR(32) | 二级分类：prop/single/special/basic/opening |
-| `status` | VARCHAR(16) | 状态：on/off |
-| `created_by` | VARCHAR(64) | 创建人（审计） |
-| `created_on` | DATETIME(3) | 创建时间（审计） |
-| `updated_by` | VARCHAR(64) | 修改人（审计） |
-| `updated_on` | DATETIME(3) | 修改时间（审计） |
-
-### `orders` 订单表
-
-| 字段 | 类型 | 说明 |
-|---|---|---|
-| `id` | BIGINT | 主键，自增 |
-| `order_no` | VARCHAR(32) | 订单号（唯一） |
-| `boss_user_id` | BIGINT | 老板用户 ID |
-| `goods_id` | BIGINT | 商品 ID |
-| `title_snapshot` | VARCHAR(256) | 下单时商品标题快照 |
-| `price_snapshot` | DECIMAL(10,2) | 下单时老板价格快照 |
-| `worker_price_snapshot` | DECIMAL(10,2) | 下单时打手金额快照 |
-| `status` | VARCHAR(32) | 订单状态（枚举名） |
-| `boss_game_type` | VARCHAR(16) | 老板派单：游戏类型（手游/端游） |
-| `boss_phone` | VARCHAR(32) | 老板派单：手机号 |
-| `boss_game_id` | VARCHAR(64) | 老板派单：游戏 ID |
-| `boss_numeric_id` | VARCHAR(32) | 老板派单：数字 ID |
-| `boss_name` | VARCHAR(64) | 老板派单：姓名/称呼 |
-| `boss_remark` | TEXT | 老板派单：备注 |
-| `worker_user_id` | BIGINT | 打手用户 ID |
-| `worker_game_id` | VARCHAR(64) | 打手接单：打手游戏 ID |
-| `worker_start_time_text` | VARCHAR(64) | 打手接单：预计上号时间（文本） |
-| `worker_remark` | TEXT | 打手接单：备注 |
-| `created_by` | VARCHAR(64) | 创建人（审计） |
-| `created_on` | DATETIME(3) | 创建时间（审计） |
-| `updated_by` | VARCHAR(64) | 修改人（审计） |
-| `updated_on` | DATETIME(3) | 修改时间（审计） |
-
-### `worker_invite_codes` 打手授权码表
-
-| 字段 | 类型 | 说明 |
-|---|---|---|
-| `id` | BIGINT | 主键，自增 |
-| `code` | VARCHAR(32) | 授权码（唯一） |
-| `status` | VARCHAR(16) | 状态：unused/used/disabled |
-| `created_by_admin_user_id` | BIGINT | 生成该授权码的管理员用户 ID |
-| `created_at` | DATETIME(3) | 生成时间 |
-| `used_by_user_id` | BIGINT | 使用该授权码的用户 ID |
-| `used_at` | DATETIME(3) | 使用时间 |
-
-### `worker_wallet` 打手钱包余额表
-
-| 字段 | 类型 | 说明 |
-|---|---|---|
-| `id` | BIGINT | 主键，自增 |
-| `worker_user_id` | BIGINT | 打手用户 ID（唯一） |
-| `balance` | DECIMAL(12,2) | 当前余额 |
-| `updated_at` | DATETIME(3) | 最近更新时间 |
-
-### `worker_wallet_txn` 打手钱包流水表
-
-| 字段 | 类型 | 说明 |
-|---|---|---|
-| `id` | BIGINT | 主键，自增 |
-| `worker_user_id` | BIGINT | 打手用户 ID |
-| `type` | VARCHAR(16) | 流水类型：income/withdraw/adjust |
-| `amount` | DECIMAL(12,2) | 变动金额：正加负减 |
-| `balance_after` | DECIMAL(12,2) | 变动后余额快照 |
-| `title` | VARCHAR(128) | 标题 |
-| `remark` | VARCHAR(512) | 备注 |
-| `actor_role` | VARCHAR(16) | 操作人角色（例如 ADMIN） |
-| `actor_user_id` | BIGINT | 操作人用户 ID |
-| `created_at` | DATETIME(3) | 创建时间 |
+数据库表结构以 `backend/src/main/resources/schema/all_tables.sql` 为准；`v0.1/README.md` 不再重复维护表字段，避免口径不一致。
 
 ## 下一步可接入内容（建议）
 

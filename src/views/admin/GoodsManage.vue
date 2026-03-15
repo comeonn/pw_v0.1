@@ -38,13 +38,10 @@
           </div>
           <div class="form-group">
             <label class="form-label">分类 <span class="required">*</span></label>
-            <select v-model="form.category" class="form-select" required>
+            <select v-model="form.categoryId" class="form-select" required>
               <option value="">请选择分类</option>
-              <option value="basic">基础保底</option>
-              <option value="hourly">小时陪玩</option>
-              <option value="fun">趣味玩法</option>
-              <option value="red">赌红玩法</option>
-              <option value="clear">清图玩法</option>
+              <option v-if="categories.length === 0" value="" disabled>暂无可用分类</option>
+              <option v-for="c in categories" :key="c.id" :value="c.id">{{ c.name }}</option>
             </select>
           </div>
           <div class="form-row">
@@ -83,11 +80,7 @@
       />
       <select v-model="category" class="select">
         <option value="">全部分类</option>
-        <option value="basic">基础保底</option>
-        <option value="hourly">小时陪玩</option>
-        <option value="fun">趣味玩法</option>
-        <option value="red">赌红玩法</option>
-        <option value="clear">清图玩法</option>
+        <option v-for="c in categories" :key="c.id" :value="String(c.id)">{{ c.name }}</option>
       </select>
       <button type="button" class="btn-secondary">查询</button>
     </div>
@@ -114,7 +107,7 @@
                 <span v-else class="no-cover">—</span>
               </td>
               <td>{{ g.name }}</td>
-              <td>{{ categoryText[g.category] }}</td>
+              <td>{{ categoryText[g.categoryId] || '—' }}</td>
               <td>¥{{ g.bossPrice }}</td>
               <td>¥{{ g.workerAmount }}</td>
               <td>{{ g.sales }}</td>
@@ -131,14 +124,20 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { computed, onMounted, ref, reactive } from 'vue'
+import { getJson } from '@/api/http'
 
-type GoodCategory = 'basic' | 'hourly' | 'fun' | 'red' | 'clear'
+interface GoodsCategoryItem {
+  id: number
+  code: string
+  name: string
+  sort: number
+}
 
 interface GoodItem {
   id: string
   name: string
-  category: GoodCategory
+  categoryId: number
   cover: string
   bossPrice: string
   workerAmount: string
@@ -150,19 +149,28 @@ interface GoodItem {
 const keyword = ref('')
 const category = ref('')
 
-const categoryText: Record<string, string> = {
-  basic: '基础保底',
-  hourly: '小时陪玩',
-  fun: '趣味玩法',
-  red: '赌红玩法',
-  clear: '清图玩法'
+const categories = ref<GoodsCategoryItem[]>([])
+
+const categoryText = computed<Record<number, string>>(() => {
+  const m: Record<number, string> = {}
+  for (const c of categories.value) m[c.id] = c.name
+  return m
+})
+
+async function loadCategories() {
+  try {
+    categories.value = await getJson<GoodsCategoryItem[]>('/api/goods_categories')
+  } catch (e) {
+    console.error(e)
+    categories.value = []
+  }
 }
 
 const mockGoods = ref<GoodItem[]>([
   {
     id: 'G001',
     name: '春服护航 1小时',
-    category: 'hourly',
+    categoryId: 0,
     cover: '/goods-1.png',
     bossPrice: '38.00',
     workerAmount: '28.00',
@@ -173,7 +181,7 @@ const mockGoods = ref<GoodItem[]>([
   {
     id: 'G002',
     name: '春服护航 3小时',
-    category: 'hourly',
+    categoryId: 0,
     cover: '/goods-2.png',
     bossPrice: '98.00',
     workerAmount: '72.00',
@@ -184,7 +192,7 @@ const mockGoods = ref<GoodItem[]>([
   {
     id: 'G003',
     name: '跑刀代打',
-    category: 'clear',
+    categoryId: 0,
     cover: '/goods-1.png',
     bossPrice: '25.00',
     workerAmount: '18.00',
@@ -195,7 +203,7 @@ const mockGoods = ref<GoodItem[]>([
   {
     id: 'G004',
     name: '33 上分',
-    category: 'fun',
+    categoryId: 0,
     cover: '/goods-1.png',
     bossPrice: '88.00',
     workerAmount: '65.00',
@@ -206,7 +214,7 @@ const mockGoods = ref<GoodItem[]>([
   {
     id: 'G005',
     name: '代肝周常',
-    category: 'basic',
+    categoryId: 0,
     cover: '/goods-2.png',
     bossPrice: '50.00',
     workerAmount: '38.00',
@@ -222,12 +230,23 @@ const editingId = ref<string | null>(null)
 const form = reactive({
   name: '',
   detail: '',
-  category: '' as GoodCategory | '',
+  categoryId: '' as number | '',
   cover: '',
   bossPrice: '',
   workerAmount: '',
   sales: 0,
   sort: 0
+})
+
+onMounted(async () => {
+  await loadCategories()
+  // 如果有分类数据，给 mock 商品一个默认分类，避免表格显示空
+  if (categories.value.length > 0) {
+    const firstId = categories.value[0].id
+    for (const g of mockGoods.value) {
+      if (!g.categoryId) g.categoryId = firstId
+    }
+  }
 })
 
 function getNextId(): string {
@@ -248,7 +267,7 @@ function openAddModal() {
   editingId.value = null
   form.name = ''
   form.detail = ''
-  form.category = ''
+  form.categoryId = categories.value[0]?.id ?? ''
   form.cover = ''
   form.bossPrice = ''
   form.workerAmount = ''
@@ -262,7 +281,7 @@ function openEditModal(g: GoodItem) {
   editingId.value = g.id
   form.name = g.name
   form.detail = g.detail || ''
-  form.category = g.category
+  form.categoryId = g.categoryId || ''
   form.cover = g.cover
   form.bossPrice = g.bossPrice
   form.workerAmount = g.workerAmount
@@ -289,8 +308,8 @@ function onCoverChange(e: Event) {
 }
 
 function submitForm() {
-  const categoryVal = form.category
-  if (!form.name.trim() || !categoryVal) {
+  const categoryIdVal = form.categoryId
+  if (!form.name.trim() || !categoryIdVal) {
     alert('请填写商品名称并选择分类')
     return
   }
@@ -303,7 +322,7 @@ function submitForm() {
   const payload = {
     name: form.name.trim(),
     detail: form.detail.trim(),
-    category: categoryVal,
+    categoryId: Number(categoryIdVal),
     cover: form.cover,
     bossPrice,
     workerAmount,
@@ -320,7 +339,7 @@ function submitForm() {
     if (item) {
       item.name = payload.name
       item.detail = payload.detail
-      item.category = payload.category
+      item.categoryId = payload.categoryId
       item.cover = payload.cover
       item.bossPrice = payload.bossPrice
       item.workerAmount = payload.workerAmount

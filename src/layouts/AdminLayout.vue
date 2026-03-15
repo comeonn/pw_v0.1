@@ -15,6 +15,10 @@
           <span class="nav-icon">🎰</span>
           <span class="nav-text">抽奖管理</span>
         </router-link>
+        <router-link to="/admin/hot-recommend" class="nav-item" active-class="active">
+          <span class="nav-icon">🔥</span>
+          <span class="nav-text">热门推荐</span>
+        </router-link>
         <router-link v-if="false" to="/admin/withdraws" class="nav-item" active-class="active">
           <span class="nav-icon">💰</span>
           <span class="nav-text">提现管理</span>
@@ -58,7 +62,8 @@ const titleMap: Record<string, string> = {
   WithdrawList: '提现管理',
   GoodsManage: '商品管理',
   CopyManage: '文案管理',
-  LotteryManage: '抽奖管理'
+  LotteryManage: '抽奖管理',
+  HotRecommendManage: '热门推荐'
 }
 
 const currentTitle = computed(() => {

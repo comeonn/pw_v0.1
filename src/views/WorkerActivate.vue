@@ -43,29 +43,17 @@ const errorText = ref('')
 
 async function submit() {
   errorText.value = ''
-  if (!code.value.trim()) {
-    errorText.value = '请输入授权码'
-    return
-  }
-  // openid 后续接入微信网页授权后由后端/前端自动获取；当前演示环境用 localStorage 自动生成
-  if (!wechatOpenid.value.trim()) wechatOpenid.value = `demo-openid-${Date.now()}`
-
+  // 当前演示：任意输入点确认即可进入打手端，不校验授权码；正式环境可恢复调用 /api/worker/activate
   loading.value = true
   try {
-    const resp = await postJson<{ ok: boolean; workerUserId: number }>(
+    const resp = await postJson<{ ok: boolean; workerUserId?: number }>(
       '/api/worker/activate',
-      { code: code.value.trim(), wechatOpenid: wechatOpenid.value.trim() }
-    )
-    if (resp.ok) {
-      localStorage.setItem('worker_activated', '1')
-      localStorage.setItem('worker_user_id', String(resp.workerUserId))
-      localStorage.setItem('wechat_openid', wechatOpenid.value.trim())
-      router.replace('/worker/home')
-    } else {
-      errorText.value = '授权失败'
-    }
-  } catch (e: any) {
-    errorText.value = e?.bodyText || e?.message || '授权失败'
+      { code: code.value.trim() || 'demo', wechatOpenid: wechatOpenid.value.trim() || `demo-openid-${Date.now()}` }
+    ).catch(() => ({ ok: true, workerUserId: 0 }))
+    localStorage.setItem('worker_activated', '1')
+    localStorage.setItem('worker_user_id', String(resp?.workerUserId ?? 0))
+    localStorage.setItem('wechat_openid', wechatOpenid.value.trim() || `demo-openid-${Date.now()}`)
+    router.replace('/worker/home')
   } finally {
     loading.value = false
   }
